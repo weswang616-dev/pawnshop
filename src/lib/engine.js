@@ -65,12 +65,12 @@ export class Engine {
    *   mate – mate-in-N (positive = White mates, negative = Black mates; null otherwise)
    *   bestMove – best move in UCI (e.g. "g1f3"), or null
    */
-  async evaluate(fen, { depth = 14, movetime = null } = {}) {
+  async evaluate(fen, { depth = 14, movetime = null, skill = 20 } = {}) {
     await this.init()
-    return this._enqueue(() => this._evaluateNow(fen, { depth, movetime }))
+    return this._enqueue(() => this._evaluateNow(fen, { depth, movetime, skill }))
   }
 
-  _evaluateNow(fen, { depth, movetime }) {
+  _evaluateNow(fen, { depth, movetime, skill = 20 }) {
     const sideSign = fen.split(' ')[1] === 'w' ? 1 : -1
     let last = { cp: 0, mate: null, pv: [], depth: 0 }
     return new Promise((resolve, reject) => {
@@ -105,6 +105,8 @@ export class Engine {
         }
       }
       this._listeners.add(handler)
+      // Skill Level (0–20) weakens the engine for play; analysis uses the default 20.
+      this._post(`setoption name Skill Level value ${Math.max(0, Math.min(20, skill))}`)
       this._post('position fen ' + fen)
       this._post(movetime ? `go movetime ${movetime}` : `go depth ${depth}`)
     })

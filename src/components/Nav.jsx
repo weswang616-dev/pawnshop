@@ -5,6 +5,7 @@ const links = [
   { to: '/review', label: 'Game Review' },
   { to: '/openings', label: 'Repertoire' },
   { to: '/tactics', label: 'Tactics' },
+  { to: '/practice', label: 'Practice' },
 ]
 
 export default function Nav() {

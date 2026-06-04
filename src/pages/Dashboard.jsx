@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { getPlayerProfile, getPlayerStats, summariseStats } from '../lib/chesscom'
 import { stats as srsStats } from '../lib/srs'
+import { stats as mistakeStats } from '../lib/mistakes'
 import { topWeakness } from '../lib/weakness'
+import { recordRatings, getRatingHistory } from '../lib/ratingHistory'
 
 const TRAINERS = [
   {
@@ -46,6 +48,8 @@ export default function Dashboard() {
   // Recomputed each time the dashboard mounts (i.e. every time you come back to it).
   const srs = useMemo(() => srsStats(), [])
   const weakness = useMemo(() => topWeakness(), [])
+  const mist = useMemo(() => mistakeStats(), [])
+  const history = useMemo(() => getRatingHistory(), [ratings])
 
   async function load(name) {
     const clean = (name ?? '').trim()
@@ -54,8 +58,10 @@ export default function Dashboard() {
     setError('')
     try {
       const [p, s] = await Promise.all([getPlayerProfile(clean), getPlayerStats(clean)])
+      const summ = summariseStats(s)
       setProfile(p)
-      setRatings(summariseStats(s))
+      setRatings(summ)
+      recordRatings(summ)
       setUsername(clean)
       setStatus('done')
     } catch (err) {
@@ -150,8 +156,35 @@ export default function Dashboard() {
             }
             to="/tactics"
           />
+          <TodayCard
+            emoji="🩹"
+            title={mist.due ? `Drill ${mist.due} due mistake${mist.due === 1 ? '' : 's'}` : mist.total ? 'Drill your mistakes' : 'No mistakes logged yet'}
+            sub={mist.total ? `${mist.total} from your own games` : 'Review games to collect them'}
+            to="/practice"
+          />
         </div>
       </section>
+
+      {(history.length > 0 || mist.total > 0 || puzzleStats.solved > 0) && (
+        <section className="progress-section">
+          <h2>Your progress</h2>
+          <div className="progress-grid">
+            <div className="progress-chart">
+              <span className="muted small">Rapid rating over time</span>
+              <Sparkline data={history} />
+            </div>
+            <div className="progress-tiles">
+              <ProgTile n={mist.total} label="Mistakes logged" />
+              <ProgTile n={srs.due + srs.fresh} label="Reviews to do" />
+              <ProgTile n={puzzleStats.solved} label="Puzzles solved" />
+              <ProgTile
+                n={puzzleStats.attempts ? `${Math.round((puzzleStats.solved / puzzleStats.attempts) * 100)}%` : '—'}
+                label="Puzzle accuracy"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="cards">
         {TRAINERS.map((t) => (
@@ -200,6 +233,30 @@ function TodayCard({ emoji, title, sub, to, onClick, disabled, accent }) {
   if (disabled) return <div className={cls}>{inner}</div>
   if (to) return <Link to={to} className={cls}>{inner}</Link>
   return <button className={cls} onClick={onClick}>{inner}</button>
+}
+
+function Sparkline({ data }) {
+  const pts = data.filter((d) => d.rapid != null).map((d) => d.rapid)
+  if (pts.length < 2) return <p className="muted small">Connect a few days in a row and your rating trend shows up here.</p>
+  const w = 280, h = 64, pad = 6
+  const min = Math.min(...pts), max = Math.max(...pts)
+  const x = (i) => pad + (i * (w - 2 * pad)) / (pts.length - 1)
+  const y = (v) => h - pad - (max === min ? 0.5 : (v - min) / (max - min)) * (h - 2 * pad)
+  const d = pts.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="spark" preserveAspectRatio="none" aria-label="rating trend">
+      <path d={d} fill="none" stroke="#7cb342" strokeWidth="2" />
+    </svg>
+  )
+}
+
+function ProgTile({ n, label }) {
+  return (
+    <div className="stat">
+      <span className="stat-n">{n}</span>
+      <span className="stat-label">{label}</span>
+    </div>
+  )
 }
 
 function Rating({ label, value }) {

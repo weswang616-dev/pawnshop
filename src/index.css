@@ -305,7 +305,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 /* ---------- today hub ---------- */
 .today { margin: 4px 0 28px; }
 .today h2 { margin-bottom: 12px; }
-.today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.today-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
 .today-card { display: flex; align-items: center; gap: 12px; text-align: left; padding: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); width: 100%; transition: transform 0.12s, border-color 0.12s; }
 .today-card:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-2px); }
 .today-card.accent-card { background: linear-gradient(180deg, rgba(124, 179, 66, 0.14), rgba(124, 179, 66, 0.04)); border-color: var(--accent); }
@@ -347,6 +347,13 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 .coach-line code { background: var(--panel-2); padding: 3px 7px; border-radius: 6px; font-size: 0.85rem; color: var(--text); }
 .coach-card .speak-btn { margin-top: 8px; }
 
+/* ---------- progress ---------- */
+.progress-section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 28px; }
+.progress-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; align-items: center; }
+.progress-chart { display: flex; flex-direction: column; gap: 6px; }
+.spark { width: 100%; height: 64px; background: var(--panel-2); border-radius: 8px; padding: 4px; }
+.progress-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 980px) {
   .review-layout { grid-template-columns: 1fr; }
@@ -356,6 +363,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
   .rep-picker { grid-template-columns: 1fr; }
   .wide-picker { grid-template-columns: repeat(2, 1fr); }
   .srs-stats { grid-template-columns: repeat(2, 1fr); }
+  .progress-grid { grid-template-columns: 1fr; }
   .study { grid-template-columns: 1fr; }
   .game-list ul { max-height: 200px; }
 }

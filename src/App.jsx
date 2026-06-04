@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import GameReview from './pages/GameReview.jsx'
 import OpeningTrainer from './pages/OpeningTrainer.jsx'
 import Tactics from './pages/Tactics.jsx'
+import Practice from './pages/Practice.jsx'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/review" element={<GameReview />} />
           <Route path="/openings" element={<OpeningTrainer />} />
           <Route path="/tactics" element={<Tactics />} />
+          <Route path="/practice" element={<Practice />} />
         </Routes>
       </main>
       <footer className="footer">

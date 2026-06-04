@@ -15,6 +15,7 @@ import {
 } from '../lib/analysis'
 import { classifyBlunder, recordGameThemes } from '../lib/weakness'
 import { describeBestMove } from '../lib/explain'
+import { addMistakes } from '../lib/mistakes'
 import SpeakButton from '../components/SpeakButton'
 
 const SPEEDS = [
@@ -171,8 +172,9 @@ export default function GameReview() {
       }
       if (!cancelRef.current) {
         setAnalysis('done')
-        // Fold this game's blunder themes into the weakness profile (drives Tactics targeting).
+        // Fold this game's blunders into (1) the weakness profile and (2) the mistake-flashcard deck.
         const themes = []
+        const mistakes = []
         for (let i = 0; i < sel.moves.length; i++) {
           if (sel.moves[i].color !== userColor) continue
           if (!nextScores[i] || !nextScores[i + 1]) continue
@@ -180,9 +182,23 @@ export default function GameReview() {
           const q = classifyLoss(loss)
           if (q === 'blunder' || q === 'mistake') {
             themes.push(classifyBlunder(sel.positions[i + 1], userColor, nextScores[i + 1]))
+            if (nextBest[i]) {
+              const info = describeBestMove(sel.positions[i], nextBest[i], nextPvs[i] || [])
+              mistakes.push({
+                fen: sel.positions[i],
+                bestMove: nextBest[i],
+                bestSan: info?.san || null,
+                played: sel.moves[i].san,
+                reason: info?.reason || '',
+                lineSan: info?.lineSan || [],
+                gameUrl: game.url,
+                color: userColor,
+              })
+            }
           }
         }
         if (themes.length) recordGameThemes(game.url, themes)
+        if (mistakes.length) addMistakes(mistakes)
       }
     } catch (err) {
       setEngineError(err.message + ' — the engine may still be loading; try again.')
