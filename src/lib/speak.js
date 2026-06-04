@@ -89,45 +89,68 @@ export function speechify(text) {
   }
 }
 
-// ---- Voice selection (prefer natural-sounding voices; they load asynchronously) ----
+// ---- Voice selection: rank voices by naturalness, allow a manual override ----
+// Web Speech uses the OS/browser voices, whose quality varies wildly (many default voices
+// sound robotic). We SCORE the available English voices and pick the most natural one — and
+// let the user override it from the UI (saved in localStorage) since the best voice differs
+// per machine and only the listener can really judge it.
 
 let cachedVoice = null
+const VOICE_PREF_KEY = 'tts-voice-uri'
 
-const PREFERRED_NAMES = [
-  'Google US English',
-  'Google UK English Female',
-  'Google UK English Male',
-  'Microsoft Aria Online (Natural) - English (United States)',
-  'Microsoft Jenny Online (Natural) - English (United States)',
-  'Microsoft Guy Online (Natural) - English (United States)',
-  'Samantha', // macOS — clear and natural
-  'Allison',
-  'Ava',
-  'Tom',
-  'Daniel', // en-GB
-  'Karen', // en-AU
-  'Tessa',
-]
+// Novelty / low-quality voices that sound robotic — push them to the bottom.
+const ROBOTIC =
+  /\b(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|princess|ralph|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|wobble)\b/i
+
+// Higher score = more natural-sounding. Tuned for macOS / Chrome / Edge voice names.
+function voiceScore(v) {
+  if (!/^en/i.test(v.lang)) return -1000 // English only
+  const n = v.name || ''
+  let s = 0
+  if (/online|natural|neural/i.test(n)) s += 100 // MS "Online (Natural)" neural voices
+  if (/premium/i.test(n)) s += 95 // macOS Premium voices (best local quality)
+  if (/siri/i.test(n)) s += 90
+  if (/enhanced/i.test(n)) s += 75 // macOS Enhanced voices
+  if (/google/i.test(n)) s += 60 // Google voices sound fairly natural
+  if (/\b(ava|samantha|allison|zoe|evan|nathan|joelle|serena|stephanie|nicky|aaron|tom|kate|jamie|matilda|isha|noelle)\b/i.test(n)) s += 25
+  if (v.localService === false) s += 12 // network voices are usually higher quality
+  if (/en[-_]US/i.test(v.lang)) s += 10
+  else if (/en[-_](GB|AU|IE)/i.test(v.lang)) s += 6
+  if (ROBOTIC.test(n)) s -= 200
+  return s
+}
+
+export function getPreferredVoiceURI() {
+  try {
+    return localStorage.getItem(VOICE_PREF_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setPreferredVoiceURI(uri) {
+  try {
+    if (uri) localStorage.setItem(VOICE_PREF_KEY, uri)
+    else localStorage.removeItem(VOICE_PREF_KEY)
+  } catch {
+    /* ignore */
+  }
+  cachedVoice = null // force a re-pick on the next utterance
+}
 
 function pickVoice() {
   if (!speechSupported) return null
   const voices = window.speechSynthesis.getVoices()
   if (!voices.length) return null
-  // 1) A known high-quality voice by exact name.
-  for (const name of PREFERRED_NAMES) {
-    const v = voices.find((vo) => vo.name === name)
-    if (v) return v
+  // Honor an explicit user choice if it's still available.
+  const pref = getPreferredVoiceURI()
+  if (pref) {
+    const chosen = voices.find((v) => v.voiceURI === pref)
+    if (chosen) return chosen
   }
-  // 2) Any English voice that advertises itself as natural/neural/enhanced/premium.
-  const enhanced = voices.find(
-    (v) => /^en/i.test(v.lang) && /(natural|neural|enhanced|premium)/i.test(v.name),
-  )
-  if (enhanced) return enhanced
-  // 3) A local en-US voice.
-  const enUS = voices.find((v) => /^en[-_]US/i.test(v.lang))
-  if (enUS) return enUS
-  // 4) Any English voice, else the first available.
-  return voices.find((v) => /^en/i.test(v.lang)) || voices[0]
+  // Otherwise pick the highest-scoring (most natural) English voice.
+  const ranked = voices.map((v) => ({ v, s: voiceScore(v) })).sort((a, b) => b.s - a.s)
+  return ranked[0] && ranked[0].s > -1000 ? ranked[0].v : voices[0]
 }
 
 function ensureVoice() {
@@ -135,16 +158,23 @@ function ensureVoice() {
   return cachedVoice
 }
 
+// English voices, best-sounding first — for the voice-picker dropdown.
 export function listEnglishVoices() {
   if (!speechSupported) return []
-  return window.speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang))
+  return window.speechSynthesis
+    .getVoices()
+    .filter((v) => /^en/i.test(v.lang))
+    .map((v) => ({ v, s: voiceScore(v) }))
+    .sort((a, b) => b.s - a.s)
+    .map((x) => x.v)
 }
 
 if (speechSupported) {
-  // Voices populate asynchronously in most browsers — refresh our pick when they arrive.
-  window.speechSynthesis.onvoiceschanged = () => {
-    cachedVoice = pickVoice()
+  // Voices populate asynchronously in most browsers — refresh our auto-pick when they arrive.
+  const refresh = () => {
+    if (!getPreferredVoiceURI()) cachedVoice = pickVoice()
   }
+  window.speechSynthesis.addEventListener?.('voiceschanged', refresh)
   window.speechSynthesis.getVoices() // kick off population
 }
 

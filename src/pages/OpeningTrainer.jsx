@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess } from 'chess.js'
 import Board from '../components/Board'
 import SpeakButton from '../components/SpeakButton'
+import VoicePicker from '../components/VoicePicker'
 import { speak, stopSpeaking } from '../lib/speak'
 import { repertoires, getRepertoire } from '../lib/repertoires'
 import { useLocalStorage } from '../hooks/useLocalStorage'
@@ -65,7 +66,7 @@ export default function OpeningTrainer() {
           ) : (
             <Drill key={rep.id + variationIdx} rep={rep} variation={variation} />
           )}
-          <Study rep={rep} />
+          <Study rep={rep} variation={variation} />
         </>
       )}
     </div>
@@ -173,6 +174,7 @@ function Learn({ rep, variation }) {
           <p>{rep.whyItWorks}</p>
           <SpeakButton text={`${rep.name}. ${rep.whyItWorks} ${rep.middlegame}`} label="Explain the opening" />
         </div>
+        <VoicePicker />
         {step >= line.length && (
           <div className="done-card">End of this line — try another variation, the <b>Drill</b>, or <b>Memorize</b>. 🧠</div>
         )}
@@ -451,13 +453,22 @@ function Pill({ n, label }) {
   )
 }
 
-function Study({ rep }) {
+function Study({ rep, variation }) {
   return (
     <section className="study">
+      {variation?.plan && (
+        <div className="study-col wide plan-highlight">
+          <div className="study-head">
+            <h2>🎯 Plan in this line — {variation.name}</h2>
+            <SpeakButton text={`Your plan in the ${variation.name} line. ${variation.plan}`} label="Hear the plan" />
+          </div>
+          <p>{variation.plan}</p>
+        </div>
+      )}
       <div className="study-col wide">
         <div className="study-head">
-          <h2>Middlegame plans</h2>
-          <SpeakButton text={`Middlegame plans for the ${rep.name}. ${rep.middlegame}`} label="Explain the plans" />
+          <h2>The opening’s overall strategy</h2>
+          <SpeakButton text={`Overall strategy for the ${rep.name}. ${rep.middlegame}`} label="Explain the strategy" />
         </div>
         <p className="muted">{rep.middlegame}</p>
       </div>

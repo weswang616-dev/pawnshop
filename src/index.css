@@ -282,6 +282,12 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 .gtm-game-head strong { font-size: 1rem; }
 .gtm-note { background: rgba(232, 151, 79, 0.12); border: 1px solid rgba(232, 151, 79, 0.5); border-radius: var(--radius); padding: 12px 14px; font-size: 0.9rem; color: var(--text); }
 .narrate-toggle { margin: 10px auto 0; justify-content: center; }
+.voice-picker { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.voice-picker label { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--muted); }
+.voice-picker select { width: 100%; }
+.voice-picker .btn-ghost { align-self: flex-start; }
+.plan-highlight { background: linear-gradient(180deg, rgba(124, 179, 66, 0.12), rgba(124, 179, 66, 0.03)); border-color: var(--accent); }
+.plan-highlight p { color: var(--text); }
 
 /* ---------- repertoire picker + SRS ---------- */
 .rep-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 6px; }

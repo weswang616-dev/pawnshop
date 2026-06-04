@@ -34,6 +34,7 @@ export const italian = {
   variations: [
     {
       name: '3…Bc5: Giuoco Pianissimo (main)',
+      plan: 'Slow build-up: castle, Re1, reroute Nbd2–f1–g3, play h3 — then break with d4 to open lines toward f7 and the kingside.',
       line: [
         { move: 'e4', by: 'w', idea: 'Claim the center and open the bishop and queen.' },
         { move: 'e5', by: 'b', idea: 'Black mirrors in the center.' },
@@ -54,6 +55,7 @@ export const italian = {
     },
     {
       name: '3…Bc5: the d4 break (aggressive)',
+      plan: 'You already opened the center: finish developing, castle, put a rook on d1/e1, and use your big pawn center and space to attack e5 and the kingside.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Black mirrors.' },
@@ -74,6 +76,7 @@ export const italian = {
     },
     {
       name: '3…Bc5: Evans Gambit (sharp)',
+      plan: 'You gave a pawn for time — play fast: d4, castle, Qb3 hitting f7, Ba3 and rooks to the center. Go straight at the king; don’t bother regaining the pawn.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -92,6 +95,7 @@ export const italian = {
     },
     {
       name: '3…Nf6: Two Knights, calm 4.d3',
+      plan: 'Same as the Pianissimo — castle, Re1, Nbd2–f1–g3, h3, then a prepared d4. Keep the b3-bishop healthy and aim slowly at f7.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -112,6 +116,7 @@ export const italian = {
     },
     {
       name: '3…Nf6: the 4.Ng5 attack (sharp, optional)',
+      plan: 'You’re a pawn up but Black is active. Finish developing (Be2, d3, Nc3, castle), give the pawn back if needed to kill the initiative, and steer to a safe, slightly better endgame.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -132,6 +137,7 @@ export const italian = {
     },
     {
       name: '3…Be7: Hungarian Defense',
+      plan: 'Black is passive — seize space behind your big center. Develop everything, castle, and expand (a timed f4 or central push) while Black stays cramped.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -150,6 +156,7 @@ export const italian = {
     },
     {
       name: '3…d6: solid setup',
+      plan: 'You’re freer with more space. Castle, improve your pieces (Re1, Nbd2–f1–g3), and pry the position open with f4 or a timed Nd5/d4 — watch f7 for tactics.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -170,6 +177,7 @@ export const italian = {
     },
     {
       name: '2…Nf6: Petroff Defense',
+      plan: 'Symmetrical with a small, lasting edge. Develop naturally (Bd3, O-O, Re1, c4), pressure the e4-knight, and play for a slow space advantage — no need to force.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -188,6 +196,7 @@ export const italian = {
     },
     {
       name: '2…d6: Philidor Defense',
+      plan: 'You have more space and the freer game. Castle, keep the bishop aimed at f7, and improve slowly; a timed Nd5, f4, or Re1+Qe2 build-up cramps Black further.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -247,6 +256,7 @@ export const caroKann = {
   variations: [
     {
       name: '3.Nc3: Classical (4…Bf5)',
+      plan: 'You’ve traded White’s attacking bishop and have a rock-solid structure. Play …Ngf6, …e6, …Be7/…Bd6, castle, then break with …c5 and grind your sound structure.',
       line: [
         { move: 'e4', by: 'w', idea: 'White takes the center.' },
         { move: 'c6', by: 'b', idea: 'Prepare …d5 with a pawn that supports it — the Caro-Kann.' },
@@ -272,6 +282,7 @@ export const caroKann = {
     },
     {
       name: '3.Nc3: Tartakower (4…Nf6, low theory)',
+      plan: 'You have the bishop pair and fast development for slightly doubled f-pawns. Castle quickly, play …Bd6 and …Re8, and use your active pieces on the half-open e-file.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -295,6 +306,7 @@ export const caroKann = {
     },
     {
       name: '3.e5: Advance (Short System)',
+      plan: 'Your bishop is already outside the chain. Break with …c5 to hit d4: play …e6, …c5, …Nc6, …Nge7–f5/g6, castle, and pressure White’s pawn chain.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'The Caro move order.' },
@@ -314,6 +326,7 @@ export const caroKann = {
     },
     {
       name: '3.e5: Advance vs 4.g4 (sharp)',
+      plan: 'White over-extended on the kingside. Keep your bishop safe (it reroutes via d7), strike with …c5, develop with tempo, and target White’s loose pawns. Don’t panic.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -333,6 +346,7 @@ export const caroKann = {
     },
     {
       name: '3.exd5: Exchange',
+      plan: 'A simple, symmetrical Carlsbad structure. Develop the bishop actively before …e6, challenge White’s bishop with …Bd6, castle, and aim for the …c5 or minority-attack plans.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -354,6 +368,7 @@ export const caroKann = {
     },
     {
       name: '3.exd5 4.c4: Panov-Botvinnik',
+      plan: 'White has an isolated d-pawn — blockade it. Put a knight on d5, trade attacking pieces, castle, and target the weak d4-pawn heading into the endgame.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -373,6 +388,7 @@ export const caroKann = {
     },
     {
       name: '3.f3: Fantasy',
+      plan: 'White built a big but loose center. Stay solid (…Bb4, …Ne7, …Nd7), castle, and break with …c5 to open the game for your better-coordinated pieces.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -392,6 +408,7 @@ export const caroKann = {
     },
     {
       name: '2.Nc3 / 2.Nf3: Two Knights',
+      plan: 'You traded the light bishop to stop White’s ideal center. Play super-solid — …e6, …Nf6, …Be7, …O-O — then free your game with …c5 or …e5.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -411,6 +428,7 @@ export const caroKann = {
     },
     {
       name: '2.d3: King’s Indian Attack',
+      plan: 'White went passive, so you grabbed the full center (d5 + e5). Build on it: …Bd6, …Nf6, …O-O, …Re8, then expand with …a5/…Qc7 or break with …d4.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -463,6 +481,7 @@ export const qgd = {
   variations: [
     {
       name: 'Main line (Orthodox QGD)',
+      plan: 'Solid and sound. Finish developing (…Nbd7, …c6), castle, then free your game with …c5 or …dxc4 and …c5/…e5. Trade a piece if you feel cramped.',
       line: [
         { move: 'd4', by: 'w', idea: 'White takes the center.' },
         { move: 'd5', by: 'b', idea: 'Stake your own central claim.' },
@@ -478,6 +497,7 @@ export const qgd = {
     },
     {
       name: 'vs the London (2.Bf4)',
+      plan: 'Challenge the f4-bishop with …Bd6. After the trade (or …Bg3), castle and play …c5 and …Nc6 to fight for the center — you’ll get easy, active piece play.',
       line: [
         { move: 'd4', by: 'w', idea: 'White plays a London-style setup.' },
         { move: 'd5', by: 'b', idea: 'Take the center.' },
@@ -519,6 +539,7 @@ export const openGame = {
   variations: [
     {
       name: 'Italian as Black (…Bc5)',
+      plan: 'Mirror White from the other side: castle, …d6, reroute a knight (…Na5 to hit a c4-bishop), and prepare …d5 or …c6+…d5. Watch f7 and play actively.',
       line: [
         { move: 'e4', by: 'w', idea: 'White’s center.' },
         { move: 'e5', by: 'b', idea: 'Meet it head-on.' },
@@ -536,6 +557,7 @@ export const openGame = {
     },
     {
       name: 'vs the Ruy Lopez (3.Bb5)',
+      plan: 'Keep it simple: …a6, …Nf6, …Be7, …b5, …d6 and castle. Then maneuver …Na5/…c5 or …Nbd7–f8–g6 and look for the …d5 break later.',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
