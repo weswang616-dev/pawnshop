@@ -1,6 +1,9 @@
 // Opening repertoires. Each repertoire has multiple named VARIATIONS (so you can master the
 // whole opening, not just one line), a spoken "why it works" explanation, and middlegame plans.
 //
+// Variations are named by the OPPONENT'S move (e.g. "3…Nf6: Two Knights") so you always know
+// which line to study for whatever your opponent actually plays.
+//
 // Shape:
 //   { id, name, color:'white'|'black', meets:'white'|'e4'|'d4', recommended:bool,
 //     summary, whyItWorks (spoken), middlegame (spoken),
@@ -16,22 +19,21 @@ export const italian = {
   recommended: true,
   summary:
     '1.e4 e5 2.Nf3 Nc6 3.Bc4 — develop fast, castle, and aim your bishop at f7. The #1 coach-recommended ' +
-    'opening for improving players: it teaches real chess (development, the center, the f7 weakness) instead of memorized tricks.',
+    'opening for improving players, now with a line for every common Black reply so you’re never caught out.',
   whyItWorks:
     "The Italian is the best opening to grow on. You make natural developing moves — knight to f3, bishop to c4 aiming at f7, " +
     "castle — and every move teaches a principle you'll use forever: control the center, develop toward the enemy king, and don't move the same piece twice. " +
     "The bishop on c4 stares at f7, Black's weakest square, defended only by the king. " +
-    "Unlike a system you autopilot, the Italian gives you open, tactical positions where seeing one move ahead wins games — exactly the skill that lifts you out of the 700s. " +
+    "Because Black can answer 3.Bc4 in several ways, this repertoire gives you a clear, sound plan against each one — so whatever your opponent does, you know the idea. " +
     "And it scales: the same ideas that work now still work at 1500, so you never have to relearn your opening.",
   middlegame:
-    "The plan is simple and repeatable. Finish developing (Nf3, Bc4, O-O), play c3 to prepare d4, and decide between two setups: " +
-    "the calm Giuoco Pianissimo (d3, then reroute the knight Nbd2–f1–g3 toward the kingside, h3 to stop a pin, then look for d4 later), " +
-    "or the direct c3 and d4 break to blow open the center while you're better developed. " +
-    "Keep your light-squared bishop healthy — if it gets attacked by …Na5, retreat it to b3. " +
-    "Watch f7 and the a2–g8 diagonal for tactics, castle early, and never grab a pawn if it costs you development.",
+    "The default plan is the Giuoco Pianissimo slow build-up: castle, play Re1, reroute the knight Nbd2–f1–g3, tuck the king with h3, and only THEN play the d4 break to open the center toward f7. " +
+    "Keep your light-squared bishop healthy — if it gets hit by …Na5, retreat it to b3, never home to f1. " +
+    "When Black avoids the main lines (the Petroff …Nf6 or Philidor …d6), grab the center with d4 and enjoy your freer, more active pieces. " +
+    "Castle early, watch the a2–g8 diagonal for tactics, and never win a pawn if it costs you development.",
   variations: [
     {
-      name: 'Giuoco Pianissimo (main line)',
+      name: '3…Bc5: Giuoco Pianissimo (main)',
       line: [
         { move: 'e4', by: 'w', idea: 'Claim the center and open the bishop and queen.' },
         { move: 'e5', by: 'b', idea: 'Black mirrors in the center.' },
@@ -39,19 +41,19 @@ export const italian = {
         { move: 'Nc6', by: 'b', idea: 'Defend e5 and develop.' },
         { move: 'Bc4', by: 'w', idea: 'The Italian bishop — aim straight at f7, Black’s weakest square.' },
         { move: 'Bc5', by: 'b', idea: 'Black mirrors, aiming at your f2.' },
-        { move: 'c3', by: 'w', idea: 'Prepare d4 and give the bishop a safe retreat to c2.' },
-        { move: 'Nf6', by: 'b', idea: 'Develop and hit your e4-pawn.' },
-        { move: 'd3', by: 'w', idea: 'The Giuoco Pianissimo: calmly defend e4. Low theory, rich middlegame — no early d4.' },
+        { move: 'c3', by: 'w', idea: 'Prepare the d4 break and give the bishop a retreat to c2.' },
+        { move: 'Nf6', by: 'b', idea: 'Develop and hit your e4-pawn — Black’s main reply.' },
+        { move: 'd3', by: 'w', idea: 'The modern Pianissimo: calmly defend e4 and build up slowly. Low theory, rich middlegame.' },
         { move: 'd6', by: 'b', idea: 'Black supports e5 and opens his bishop.' },
         { move: 'O-O', by: 'w', idea: 'King safety first.' },
         { move: 'O-O', by: 'b', idea: 'Black castles too.' },
         { move: 'Re1', by: 'w', idea: 'Back up e4 and prepare the knight tour Nbd2–f1–g3.' },
-        { move: 'a6', by: 'b', idea: 'Make luft and prepare …Ba7, tucking the bishop away.' },
-        { move: 'Nbd2', by: 'w', idea: 'Reroute the knight toward the kingside; keep c3 for the pawn. A timely d4 comes later.' },
+        { move: 'a6', by: 'b', idea: 'Make luft and prepare …Ba7.' },
+        { move: 'Nbd2', by: 'w', idea: 'Reroute the knight toward the kingside; a prepared d4 comes later, aimed at f7.' },
       ],
     },
     {
-      name: 'Giuoco Piano — the d4 break',
+      name: '3…Bc5: the d4 break (aggressive)',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Black mirrors.' },
@@ -61,37 +63,17 @@ export const italian = {
         { move: 'Bc5', by: 'b', idea: 'Black mirrors.' },
         { move: 'c3', by: 'w', idea: 'Prepare the big central break d4.' },
         { move: 'Nf6', by: 'b', idea: 'Develop and hit e4.' },
-        { move: 'd4', by: 'w', idea: 'Strike the center NOW — the aggressive option, opening lines while you’re well developed.' },
+        { move: 'd4', by: 'w', idea: 'Strike the center NOW — the sharper, more forcing option. Sound, but more theory than the calm 5.d3.' },
         { move: 'exd4', by: 'b', idea: 'Black captures.' },
         { move: 'cxd4', by: 'w', idea: 'Recapture and build a strong d4–e4 pawn center.' },
-        { move: 'Bb4+', by: 'b', idea: 'A check to slow you down before you roll the center forward.' },
+        { move: 'Bb4+', by: 'b', idea: 'A check to slow you down before the center rolls forward.' },
         { move: 'Bd2', by: 'w', idea: 'Block the check and offer a trade — keep it simple and safe.' },
         { move: 'Bxd2+', by: 'b', idea: 'Black trades.' },
-        { move: 'Nbxd2', by: 'w', idea: 'Recapture, develop, and keep your powerful center. You’re ahead in space.' },
+        { move: 'Nbxd2', by: 'w', idea: 'Recapture, develop, and keep your big center. You’re ahead in space.' },
       ],
     },
     {
-      name: 'Two Knights — calm 4.d3',
-      line: [
-        { move: 'e4', by: 'w', idea: 'Center.' },
-        { move: 'e5', by: 'b', idea: 'Open game.' },
-        { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
-        { move: 'Nc6', by: 'b', idea: 'Defend.' },
-        { move: 'Bc4', by: 'w', idea: 'Italian bishop.' },
-        { move: 'Nf6', by: 'b', idea: 'The Two Knights — Black hits e4 instead of playing …Bc5.' },
-        { move: 'd3', by: 'w', idea: 'Calm and strong — sidestep the wild Fried Liver (4.Ng5) entirely and just play good chess.' },
-        { move: 'Bc5', by: 'b', idea: 'Black develops.' },
-        { move: 'O-O', by: 'w', idea: 'Castle.' },
-        { move: 'd6', by: 'b', idea: 'Support e5.' },
-        { move: 'c3', by: 'w', idea: 'Prepare d4 and a calm build-up.' },
-        { move: 'a6', by: 'b', idea: 'Stop Bb5 ideas and prepare …Ba7.' },
-        { move: 'Bb3', by: 'w', idea: 'Tuck the bishop onto a safe diagonal before …Na5 can hit it.' },
-        { move: 'Ba7', by: 'b', idea: 'Black does the same.' },
-        { move: 'Nbd2', by: 'w', idea: 'Reroute toward the kingside (Nf1–g3) — the signature Italian maneuver.' },
-      ],
-    },
-    {
-      name: 'Evans Gambit (aggressive)',
+      name: '3…Bc5: Evans Gambit (sharp)',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
@@ -103,20 +85,60 @@ export const italian = {
         { move: 'Bxb4', by: 'b', idea: 'Black accepts the pawn.' },
         { move: 'c3', by: 'w', idea: 'Hit the bishop again and prepare d4 with tempo.' },
         { move: 'Ba5', by: 'b', idea: 'Black keeps the bishop active and pinning.' },
-        { move: 'd4', by: 'w', idea: 'Build the big center with gain of time — this is the point of the gambit.' },
-        { move: 'exd4', by: 'b', idea: 'Black grabs another pawn.' },
-        { move: 'O-O', by: 'w', idea: 'Castle and open lines. You have a massive lead in development for the pawn — this is the Evergreen Game.' },
+        { move: 'd4', by: 'w', idea: 'Build the big center with gain of time — the point of the gambit.' },
+        { move: 'exd4', by: 'b', idea: 'Black grabs a second pawn.' },
+        { move: 'O-O', by: 'w', idea: 'Castle and open lines. You have a crushing lead in development for the pawns — this is the Evergreen Game.' },
       ],
     },
     {
-      name: 'Hungarian Defense (3…Be7)',
+      name: '3…Nf6: Two Knights, calm 4.d3',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'e5', by: 'b', idea: 'Open game.' },
         { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
         { move: 'Nc6', by: 'b', idea: 'Defend.' },
         { move: 'Bc4', by: 'w', idea: 'Italian bishop.' },
-        { move: 'Be7', by: 'b', idea: 'The Hungarian — passive but solid; the bishop won’t fight for the center.' },
+        { move: 'Nf6', by: 'b', idea: 'The Two Knights — Black hits e4 instead of playing …Bc5.' },
+        { move: 'd3', by: 'w', idea: 'Calm and strong — the SOUND main line. Sidestep the wild Fried Liver and just play good chess.' },
+        { move: 'Bc5', by: 'b', idea: 'Black develops.' },
+        { move: 'O-O', by: 'w', idea: 'Castle.' },
+        { move: 'd6', by: 'b', idea: 'Support e5.' },
+        { move: 'c3', by: 'w', idea: 'Prepare d4 and a calm build-up.' },
+        { move: 'a6', by: 'b', idea: 'Stop Bb5 ideas and prepare …Ba7.' },
+        { move: 'Bb3', by: 'w', idea: 'Tuck the bishop onto a safe diagonal before …Na5 can hit it.' },
+        { move: 'Ba7', by: 'b', idea: 'Black does the same.' },
+        { move: 'Nbd2', by: 'w', idea: 'Reroute toward the kingside (Nf1–g3) — the signature Italian maneuver.' },
+      ],
+    },
+    {
+      name: '3…Nf6: the 4.Ng5 attack (sharp, optional)',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'e5', by: 'b', idea: 'Open game.' },
+        { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
+        { move: 'Nc6', by: 'b', idea: 'Defend.' },
+        { move: 'Bc4', by: 'w', idea: 'Italian bishop.' },
+        { move: 'Nf6', by: 'b', idea: 'The Two Knights.' },
+        { move: 'Ng5', by: 'w', idea: 'The aggressive try — attack f7 at once. Fun, but optional: Black has a known equalizer, so 4.d3 is the sounder choice.' },
+        { move: 'd5', by: 'b', idea: 'Forced — block the attack on f7.' },
+        { move: 'exd5', by: 'w', idea: 'Open the position.' },
+        { move: 'Na5', by: 'b', idea: 'Black’s best! Hit the bishop and accept a pawn for activity (NOT 5…Nxd5?? 6.Nxf7! — the Fried Liver).' },
+        { move: 'Bb5+', by: 'w', idea: 'Check and keep the bishop.' },
+        { move: 'c6', by: 'b', idea: 'Block and challenge.' },
+        { move: 'dxc6', by: 'w', idea: 'Grab another pawn.' },
+        { move: 'bxc6', by: 'b', idea: 'Recapture, opening lines for the rook and bishop.' },
+        { move: 'Be2', by: 'w', idea: 'Retreat. You’re a pawn up, but Black has real development for it — this is why 4.d3 is the main line.' },
+      ],
+    },
+    {
+      name: '3…Be7: Hungarian Defense',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'e5', by: 'b', idea: 'Open game.' },
+        { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
+        { move: 'Nc6', by: 'b', idea: 'Defend.' },
+        { move: 'Bc4', by: 'w', idea: 'Italian bishop.' },
+        { move: 'Be7', by: 'b', idea: 'The Hungarian — passive but solid; this bishop won’t fight for the center.' },
         { move: 'd4', by: 'w', idea: 'Grab the center at once — punish the passive bishop.' },
         { move: 'exd4', by: 'b', idea: 'Black captures.' },
         { move: 'Nxd4', by: 'w', idea: 'Recapture with the knight; you have a big, free center.' },
@@ -126,21 +148,80 @@ export const italian = {
         { move: 'O-O', by: 'w', idea: 'Castle. You have more space and easy, principled development.' },
       ],
     },
+    {
+      name: '3…d6: solid setup',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'e5', by: 'b', idea: 'Open game.' },
+        { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
+        { move: 'Nc6', by: 'b', idea: 'Defend.' },
+        { move: 'Bc4', by: 'w', idea: 'Italian bishop.' },
+        { move: 'd6', by: 'b', idea: 'A solid, passive setup — Black braces e5 and delays …Nf6.' },
+        { move: 'd4', by: 'w', idea: 'Challenge the center immediately while you’re better developed.' },
+        { move: 'exd4', by: 'b', idea: 'Black releases the tension.' },
+        { move: 'Nxd4', by: 'w', idea: 'Recentralize the knight; your pieces are freer.' },
+        { move: 'Nf6', by: 'b', idea: 'Develop and hit e4.' },
+        { move: 'Nc3', by: 'w', idea: 'Defend e4 and develop.' },
+        { move: 'Be7', by: 'b', idea: 'Black develops.' },
+        { move: 'O-O', by: 'w', idea: 'Castle.' },
+        { move: 'O-O', by: 'b', idea: 'Black castles.' },
+        { move: 'h3', by: 'w', idea: 'Make luft, stop …Bg4/…Ng4, and prepare to improve your pieces and pressure f7.' },
+      ],
+    },
+    {
+      name: '2…Nf6: Petroff Defense',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'e5', by: 'b', idea: 'Open game.' },
+        { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
+        { move: 'Nf6', by: 'b', idea: 'The Petroff — Black ignores the threat and counterattacks e4.' },
+        { move: 'Nxe5', by: 'w', idea: 'Just take the pawn. (Black must NOT copy with 3…Nxe4?! — 4.Qe2! and 4…Nf6?? 5.Nc6+ wins the queen.)' },
+        { move: 'd6', by: 'b', idea: 'Kick the knight FIRST — the correct move order.' },
+        { move: 'Nf3', by: 'w', idea: 'Retreat.' },
+        { move: 'Nxe4', by: 'b', idea: 'Now it’s safe to recapture on e4.' },
+        { move: 'd4', by: 'w', idea: 'Open the center and grab space — the main line.' },
+        { move: 'd5', by: 'b', idea: 'Support the e4-knight.' },
+        { move: 'Bd3', by: 'w', idea: 'Develop, eye the kingside, and challenge the e4-knight.' },
+        { move: 'Nc6', by: 'b', idea: 'Develop and pressure d4.' },
+        { move: 'O-O', by: 'w', idea: 'Castle; next Re1, c4 — you have an easy, slightly freer game.' },
+      ],
+    },
+    {
+      name: '2…d6: Philidor Defense',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'e5', by: 'b', idea: 'Open game.' },
+        { move: 'Nf3', by: 'w', idea: 'Attack e5.' },
+        { move: 'd6', by: 'b', idea: 'The Philidor — solid but passive; Black defends e5 with the pawn.' },
+        { move: 'd4', by: 'w', idea: 'Challenge the center immediately — this is best (and 3…Bg4?! runs into 4.dxe5! — the Opera-Game trap).' },
+        { move: 'exd4', by: 'b', idea: 'Black’s most common reply.' },
+        { move: 'Nxd4', by: 'w', idea: 'Recentralize; your bishops and f-pawn come alive.' },
+        { move: 'Nf6', by: 'b', idea: 'Develop and hit e4.' },
+        { move: 'Nc3', by: 'w', idea: 'Defend e4 and develop.' },
+        { move: 'Be7', by: 'b', idea: 'Black develops (the solid Antoshin setup).' },
+        { move: 'Bc4', by: 'w', idea: 'The Italian bishop again — aim at f7.' },
+        { move: 'O-O', by: 'b', idea: 'Black castles.' },
+        { move: 'O-O', by: 'w', idea: 'Castle.' },
+        { move: 'c6', by: 'b', idea: 'Black controls d5.' },
+        { move: 'Bb3', by: 'w', idea: 'Tuck the bishop safely; you enjoy more space and a free game.' },
+      ],
+    },
   ],
   plans: [
-    'Develop, castle, and aim the bishop at f7 — then choose: slow setup (d3, Nbd2–f1–g3, h3) or the d4 break.',
-    'Keep the light bishop healthy — if …Na5 attacks it, retreat to b3, not back home.',
-    'Play c3 early so d4 is always available to open the center when you’re better developed.',
+    'Default plan: castle, Re1, reroute Nbd2–f1–g3, play h3, THEN the d4 break aimed at f7.',
+    'Keep the light bishop healthy — if …Na5 attacks it, retreat to b3, not home to f1.',
+    'When Black avoids the main line (Petroff …Nf6, Philidor …d6), grab the center with d4 for a freer game.',
     'Castle before you attack; watch the a2–g8 diagonal and f7 for tactics.',
   ],
   traps: [
-    'You can play the Fried Liver (3…Nf6 4.Ng5) for tricks, but learn WHY the Italian works — calm 4.d3 keeps a great game and ages well.',
+    'Punish the Petroff copycat: after 2…Nf6 3.Nxe5, if Black plays 3…Nxe4?! answer 4.Qe2! — then 4…Nf6?? 5.Nc6+ wins the queen.',
+    'Opera-Game trap: vs the Philidor, 3…Bg4?! 4.dxe5 Bxf3 5.Qxf3 dxe5 6.Bc4 and 6…Nf6?? 7.Qb3 forks f7 and b7.',
+    'The Fried Liver (3…Nf6 4.Ng5) is a fun sharp try, but 4…d5 5.exd5 Na5! equalizes — the calm 4.d3 is the sound main line.',
     'Don’t grab e5 early with Nxe5 — …Qd4 or …Qg5 forks can punish it.',
-    'Don’t block your c-pawn with Nc3 if you still want the c3+d4 plan.',
   ],
   offBook:
     'This trains 1.e4 e5. If Black answers 1.e4 with something else (the Sicilian 1…c5, French 1…e6, or Caro-Kann 1…c6), ' +
-    'fall back on the three principles — fight for the center, develop every piece, and castle — and we can add dedicated lines as you climb.',
+    'fall back on the three principles — fight for the center, develop every piece, and castle — and we can add dedicated anti-Sicilian/French lines as you climb.',
 }
 
 export const caroKann = {
@@ -150,22 +231,22 @@ export const caroKann = {
   meets: 'e4',
   recommended: true,
   summary:
-    '1…c6 — the solid, reliable answer to 1.e4 that you already play and score with. Rock-solid structure, ' +
-    'and your light-squared bishop gets out of the box.',
+    '1…c6 — the solid, reliable answer to 1.e4 that you already play and score with, now with a line for every ' +
+    'White try: Classical, Advance, Exchange, Panov, Fantasy, the Two Knights, and the King’s Indian Attack.',
   whyItWorks:
     "The Caro-Kann is the grown-up answer to 1.e4. You challenge the center with c6 and d5, but unlike the French, " +
     "you get to develop your light-squared bishop OUTSIDE the pawn chain to f5 or g6 before playing e6. " +
     "That bishop is the piece that makes French players miserable, and in the Caro it becomes one of your best pieces. " +
-    "You get a sound structure, you rarely get mated in the opening, and you reach calm positions where good moves beat memorized traps. " +
-    "It fits you perfectly — it's already your most-played and best-scoring defense.",
+    "White can try many setups against it — pushing e5, trading on d5, the Panov c4, the Fantasy f3 — so this repertoire gives you a sound, clear answer to each. " +
+    "You get a solid structure, you rarely get mated in the opening, and you reach calm positions where good moves beat memorized traps. It’s already your best-scoring defense.",
   middlegame:
     "Your structure usually has pawns on c6 and e6 with a great bishop outside the chain. " +
-    "The key freeing break is c5, hitting White's d4-pawn once you're developed; in the Advance Variation that c5 break is your main source of counterplay. " +
+    "The key freeing break is …c5, hitting White's d4-pawn once you're developed; in the Advance Variation that …c5 break is your main source of counterplay. " +
     "Trade off White's attacking light-squared bishop when you can, aim for solid piece play, and you'll often reach endgames where your structure is simply better. " +
-    "Patience wins Caro-Kann games — develop, castle, break with c5, and let White over-extend.",
+    "Patience wins Caro-Kann games — develop, castle, break with …c5, and let White over-extend. When you want LESS theory, the Tartakower (…Nf6 then …exf6) gives a sound, easy-to-play game.",
   variations: [
     {
-      name: 'Classical Main Line',
+      name: '3.Nc3: Classical (4…Bf5)',
       line: [
         { move: 'e4', by: 'w', idea: 'White takes the center.' },
         { move: 'c6', by: 'b', idea: 'Prepare …d5 with a pawn that supports it — the Caro-Kann.' },
@@ -186,11 +267,34 @@ export const caroKann = {
         { move: 'Bd3', by: 'w', idea: 'White offers to trade the good bishops.' },
         { move: 'Bxd3', by: 'b', idea: 'Happily trade — you remove White’s attacker.' },
         { move: 'Qxd3', by: 'w', idea: 'White recaptures.' },
-        { move: 'e6', by: 'b', idea: 'Solid: finish development with …Ngf6, …Be7/…Bd6, and castle.' },
+        { move: 'e6', by: 'b', idea: 'Solid: finish with …Ngf6, …Be7/…Bd6, and castle.' },
       ],
     },
     {
-      name: 'Advance Variation (3.e5)',
+      name: '3.Nc3: Tartakower (4…Nf6, low theory)',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'c6', by: 'b', idea: 'Caro.' },
+        { move: 'd4', by: 'w', idea: 'Center.' },
+        { move: 'd5', by: 'b', idea: 'Challenge.' },
+        { move: 'Nc3', by: 'w', idea: 'Defend e4 and develop.' },
+        { move: 'dxe4', by: 'b', idea: 'Resolve the tension.' },
+        { move: 'Nxe4', by: 'w', idea: 'Recapture.' },
+        { move: 'Nf6', by: 'b', idea: 'The low-theory choice — invite the trade for fast, easy development.' },
+        { move: 'Nxf6+', by: 'w', idea: 'White trades on f6.' },
+        { move: 'exf6', by: 'b', idea: 'The Tartakower recapture — open the e-file, gain the bishop pair, develop fast (sounder than …gxf6).' },
+        { move: 'c3', by: 'w', idea: 'White supports d4.' },
+        { move: 'Bd6', by: 'b', idea: 'Develop toward the kingside; you’ll castle quickly.' },
+        { move: 'Bd3', by: 'w', idea: 'White develops.' },
+        { move: 'O-O', by: 'b', idea: 'King safety.' },
+        { move: 'Ne2', by: 'w', idea: 'White develops.' },
+        { move: 'Re8', by: 'b', idea: 'Use the open e-file.' },
+        { move: 'O-O', by: 'w', idea: 'White castles.' },
+        { move: 'Nd7', by: 'b', idea: 'Develop; with the bishop pair and easy play, you have a comfortable, low-maintenance game.' },
+      ],
+    },
+    {
+      name: '3.e5: Advance (Short System)',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'The Caro move order.' },
@@ -198,9 +302,9 @@ export const caroKann = {
         { move: 'd5', by: 'b', idea: 'Challenge it.' },
         { move: 'e5', by: 'w', idea: 'White grabs space and locks the center — the sharpest, best-scoring try.' },
         { move: 'Bf5', by: 'b', idea: 'Get the bishop out NOW, before …e6 — the whole reason to play the Caro.' },
-        { move: 'Nf3', by: 'w', idea: 'White develops.' },
+        { move: 'Nf3', by: 'w', idea: 'The calm Short System — White just develops.' },
         { move: 'e6', by: 'b', idea: 'Now build the chain behind your already-developed bishop.' },
-        { move: 'Be2', by: 'w', idea: 'White develops.' },
+        { move: 'Be2', by: 'w', idea: 'White develops quietly.' },
         { move: 'c5', by: 'b', idea: 'The key break — hit d4 and open lines for your pieces.' },
         { move: 'c3', by: 'w', idea: 'White props up d4.' },
         { move: 'Nc6', by: 'b', idea: 'Pile on d4 and develop.' },
@@ -209,7 +313,26 @@ export const caroKann = {
       ],
     },
     {
-      name: 'Exchange Variation (3.exd5)',
+      name: '3.e5: Advance vs 4.g4 (sharp)',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'c6', by: 'b', idea: 'Caro.' },
+        { move: 'd4', by: 'w', idea: 'Center.' },
+        { move: 'd5', by: 'b', idea: 'Challenge.' },
+        { move: 'e5', by: 'w', idea: 'The Advance.' },
+        { move: 'Bf5', by: 'b', idea: 'Bishop out first.' },
+        { move: 'g4', by: 'w', idea: 'The Bayonet Attack — kick the bishop and grab space (aggressive and sharp).' },
+        { move: 'Bd7', by: 'b', idea: 'Retreat calmly — DON’T let the bishop get trapped on the kingside. It’ll reroute via b5/e8.' },
+        { move: 'c4', by: 'w', idea: 'White grabs more space.' },
+        { move: 'e6', by: 'b', idea: 'Open your pieces and prepare to strike back.' },
+        { move: 'Nc3', by: 'w', idea: 'White develops.' },
+        { move: 'c5', by: 'b', idea: 'Hit the over-extended center — White’s big pawns become targets.' },
+        { move: 'dxc5', by: 'w', idea: 'White releases the tension.' },
+        { move: 'Bxc5', by: 'b', idea: 'Develop with tempo; your pieces are active and White’s pawns are loose. Black is fine.' },
+      ],
+    },
+    {
+      name: '3.exd5: Exchange',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -217,7 +340,7 @@ export const caroKann = {
         { move: 'd5', by: 'b', idea: 'Challenge.' },
         { move: 'exd5', by: 'w', idea: 'White trades in the center.' },
         { move: 'cxd5', by: 'b', idea: 'Recapture; you have an easy, symmetrical position.' },
-        { move: 'Bd3', by: 'w', idea: 'White develops toward your king.' },
+        { move: 'Bd3', by: 'w', idea: 'White develops and stops …Bf5.' },
         { move: 'Nc6', by: 'b', idea: 'Develop and control the center.' },
         { move: 'c3', by: 'w', idea: 'White supports d4.' },
         { move: 'Nf6', by: 'b', idea: 'Develop; eye the e4 and g4 squares.' },
@@ -226,11 +349,11 @@ export const caroKann = {
         { move: 'Nf3', by: 'w', idea: 'White develops.' },
         { move: 'Bd6', by: 'b', idea: 'Challenge White’s good bishop head-on.' },
         { move: 'Bxd6', by: 'w', idea: 'White trades.' },
-        { move: 'Qxd6', by: 'b', idea: 'Recapture; easy development with …O-O, …Bg4 or …Bf5 to come.' },
+        { move: 'Qxd6', by: 'b', idea: 'Recapture; easy development with …O-O and …Bd7/…Bg4 to come.' },
       ],
     },
     {
-      name: 'Panov-Botvinnik Attack (4.c4)',
+      name: '3.exd5 4.c4: Panov-Botvinnik',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -244,23 +367,23 @@ export const caroKann = {
         { move: 'e6', by: 'b', idea: 'Solid: open your bishop and prepare to castle. (…g6 is the sharper Gruenfeld-style setup.)' },
         { move: 'Nf3', by: 'w', idea: 'White develops.' },
         { move: 'Be7', by: 'b', idea: 'Calm development; castle next. (…Bb4 pins and is sharper.)' },
-        { move: 'cxd5', by: 'w', idea: 'White clarifies the center, leaving himself an isolated d4-pawn.' },
-        { move: 'Nxd5', by: 'b', idea: 'Recapture and BLOCKADE the isolated pawn on d5 — trade pieces and target d4. Your long-term trump.' },
+        { move: 'cxd5', by: 'w', idea: 'White clarifies, leaving himself an isolated d4-pawn.' },
+        { move: 'Nxd5', by: 'b', idea: 'Recapture and BLOCKADE the isolated pawn — trade pieces and target d4. Your long-term trump.' },
       ],
     },
     {
-      name: 'Fantasy Variation (3.f3)',
+      name: '3.f3: Fantasy',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
         { move: 'd4', by: 'w', idea: 'Center.' },
         { move: 'd5', by: 'b', idea: 'Challenge.' },
-        { move: 'f3', by: 'w', idea: 'The Fantasy Variation — White props up e4 to build a big center (but loosens his kingside).' },
+        { move: 'f3', by: 'w', idea: 'The Fantasy — White props up e4 to build a big center (but loosens his kingside).' },
         { move: 'e6', by: 'b', idea: 'The solid, low-risk reply: open your bishop and keep your structure intact. Don’t grab on e4 yet.' },
         { move: 'Nc3', by: 'w', idea: 'White develops.' },
         { move: 'Bb4', by: 'b', idea: 'Pin the knight to pile pressure on e4.' },
         { move: 'Bf4', by: 'w', idea: 'White develops.' },
-        { move: 'Ne7', by: 'b', idea: 'Flexible — the knight heads to g6 to hit the f4-bishop, and keeps …Nd7 and …c5 ideas.' },
+        { move: 'Ne7', by: 'b', idea: 'Flexible — the knight heads to g6 to hit the f4-bishop, keeping …Nd7 and …c5 ideas.' },
         { move: 'Bd3', by: 'w', idea: 'White develops.' },
         { move: 'Nd7', by: 'b', idea: 'Develop and prepare the freeing …c5 break.' },
         { move: 'Nge2', by: 'w', idea: 'White completes development.' },
@@ -268,7 +391,7 @@ export const caroKann = {
       ],
     },
     {
-      name: 'Two Knights (2.Nc3 & 3.Nf3)',
+      name: '2.Nc3 / 2.Nf3: Two Knights',
       line: [
         { move: 'e4', by: 'w', idea: 'Center.' },
         { move: 'c6', by: 'b', idea: 'Caro.' },
@@ -279,27 +402,47 @@ export const caroKann = {
         { move: 'h3', by: 'w', idea: 'White puts the question to the bishop.' },
         { move: 'Bxf3', by: 'b', idea: 'Trade it off; White’s recapture leaves you a sound, solid Caro structure.' },
         { move: 'Qxf3', by: 'w', idea: 'White recaptures with the queen.' },
+        { move: 'Nf6', by: 'b', idea: 'Develop and hit e4 — note: never grab the d-pawn here, just develop.' },
+        { move: 'd3', by: 'w', idea: 'White supports e4.' },
         { move: 'e6', by: 'b', idea: 'Open your bishop — rock-solid and easy to play.' },
-        { move: 'd4', by: 'w', idea: 'White finally builds the center.' },
-        { move: 'dxe4', by: 'b', idea: 'Resolve the center to keep things simple.' },
-        { move: 'Nxe4', by: 'w', idea: 'White recaptures.' },
-        { move: 'Nd7', by: 'b', idea: 'Develop toward …Ngf6 — the familiar, comfortable Caro setup.' },
+        { move: 'g3', by: 'w', idea: 'White fianchettoes.' },
+        { move: 'Bb4', by: 'b', idea: 'Pin and develop; finish with …O-O. A comfortable, balanced game.' },
+      ],
+    },
+    {
+      name: '2.d3: King’s Indian Attack',
+      line: [
+        { move: 'e4', by: 'w', idea: 'Center.' },
+        { move: 'c6', by: 'b', idea: 'Caro.' },
+        { move: 'd3', by: 'w', idea: 'The King’s Indian Attack — White plays a quiet, passive setup.' },
+        { move: 'd5', by: 'b', idea: 'Take the center — White’s passivity lets you grab space.' },
+        { move: 'Nd2', by: 'w', idea: 'White develops behind the pawns.' },
+        { move: 'e5', by: 'b', idea: 'Seize the FULL center with both pawns — Black is already comfortable.' },
+        { move: 'Ngf3', by: 'w', idea: 'White develops.' },
+        { move: 'Bd6', by: 'b', idea: 'Develop actively, guarding e5.' },
+        { move: 'g3', by: 'w', idea: 'White fianchettoes the bishop.' },
+        { move: 'Nf6', by: 'b', idea: 'Develop and protect your big center.' },
+        { move: 'Bg2', by: 'w', idea: 'White develops.' },
+        { move: 'O-O', by: 'b', idea: 'King safety.' },
+        { move: 'O-O', by: 'w', idea: 'White castles.' },
+        { move: 'Re8', by: 'b', idea: 'Back up e5; you have more space and an easy plan of …a5, …Nbd7, …Qc7. A great version for Black.' },
       ],
     },
   ],
   plans: [
-    'Get the light-squared bishop OUTSIDE the chain (…Bf5 or …Bg6) before playing …e6 — this is the heart of the Caro.',
+    'Get the light-squared bishop OUTSIDE the chain (…Bf5 or …Bg6) before playing …e6 — the heart of the Caro.',
     'The …c5 break is your main counterplay, especially against the Advance Variation.',
     'Against the Panov’s isolated pawn, blockade d5, trade pieces, and target the d4-pawn in the endgame.',
-    'Trade White’s attacking light-squared bishop; then your solid structure often gives you a better endgame.',
+    'Want less theory? Use the Tartakower (…Nf6, …exf6) — bishop pair and fast, easy development.',
   ],
   traps: [
     'In the Advance, play …Bf5 BEFORE …e6. If you play …e6 first your bishop is stuck behind the pawns (the French problem you’re avoiding).',
-    'Don’t grab White’s h-pawn with the bishop in the main line — h4–h5 can trap it. Make luft with …h6 first.',
+    'Smothered-mate trap: if you ever meet 3.Nc3 with the …Nd7 move order, after 5.Qe2 you MUST play 5…Ndf6 — 5…Ngf6?? allows 6.Nd6 checkmate.',
+    'Don’t grab White’s h-pawn with …gxh5 in the h4–h5 lines — it can run into Bxf7#. Make luft with …h6 first and keep the bishop safe.',
     'Against the Fantasy (3.f3), don’t rush …dxe4; the calm …e6 keeps you safe and solid.',
   ],
   offBook:
-    'Against rarer tries (the King’s Indian Attack, or 2.d3), the same ideas apply: …d5, get the bishop out, …e6, develop and castle. ' +
+    'Against other tries (2.c4 Accelerated Panov, 2.Ne2, or gambits), the same ideas apply: …d5, get the bishop out, …e6, develop and castle. ' +
     'The Caro’s solidity means good principles beat memorized lines — we can add more sidelines as you climb.',
 }
 

@@ -105,10 +105,10 @@ function RepPicker({ value, onSelect }) {
 function VariationPicker({ rep, value, onSelect }) {
   return (
     <div className="variation-row">
-      <span className="muted small">Variation:</span>
-      <div className="seg">
+      <span className="muted small">Line for your opponent’s move:</span>
+      <div className="variation-chips">
         {rep.variations.map((v, i) => (
-          <button key={i} className={value === i ? 'on' : ''} onClick={() => onSelect(i)}>
+          <button key={i} className={`var-chip ${value === i ? 'on' : ''}`} onClick={() => onSelect(i)}>
             {v.name}
           </button>
         ))}
