@@ -322,6 +322,31 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 .review-latest { flex: none; white-space: nowrap; }
 .kbd-hint { color: var(--muted); font-size: 0.85rem; }
 
+/* ---------- voice + coach pick + variations ---------- */
+.speak-btn { background: var(--accent-2); border-color: var(--accent-2); color: #fff; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; align-self: flex-start; }
+.speak-btn:hover:not(:disabled) { background: #6f9df0; }
+
+.coach-pick { background: linear-gradient(180deg, rgba(124, 179, 66, 0.12), rgba(124, 179, 66, 0.03)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; }
+.coach-pick p { color: var(--text); margin-top: 4px; font-size: 0.92rem; }
+.star { color: var(--gold); }
+
+.wide-picker { grid-template-columns: repeat(5, 1fr); }
+.variation-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; flex-wrap: wrap; }
+.variation-row .seg { flex-wrap: wrap; }
+
+.why-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.why-card strong { color: #fff; }
+.why-card p { color: var(--muted); font-size: 0.9rem; }
+
+.study-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.study-head h2 { margin: 0; }
+
+.coach-played { color: var(--muted); font-size: 0.9rem; }
+.coach-better { color: var(--text); font-size: 0.95rem; margin-top: 6px; }
+.coach-line { margin-top: 6px; }
+.coach-line code { background: var(--panel-2); padding: 3px 7px; border-radius: 6px; font-size: 0.85rem; color: var(--text); }
+.coach-card .speak-btn { margin-top: 8px; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 980px) {
   .review-layout { grid-template-columns: 1fr; }
@@ -329,6 +354,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
   .cards { grid-template-columns: 1fr; }
   .today-grid { grid-template-columns: 1fr; }
   .rep-picker { grid-template-columns: 1fr; }
+  .wide-picker { grid-template-columns: repeat(2, 1fr); }
   .srs-stats { grid-template-columns: repeat(2, 1fr); }
   .study { grid-template-columns: 1fr; }
   .game-list ul { max-height: 200px; }
@@ -342,6 +368,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
   .hero h1 { font-size: 2rem; }
   .page { padding: 18px 16px 40px; }
   .review-head { flex-wrap: wrap; }
+  .wide-picker { grid-template-columns: 1fr; }
   .connect input { min-width: 0; flex: 1; }
   .profile-card { flex-direction: column; text-align: center; }
   .rating-row { justify-content: center; }

@@ -14,6 +14,8 @@ import {
   uciToMove,
 } from '../lib/analysis'
 import { classifyBlunder, recordGameThemes } from '../lib/weakness'
+import { describeBestMove } from '../lib/explain'
+import SpeakButton from '../components/SpeakButton'
 
 const SPEEDS = [
   { key: 'fast', label: 'Fast', movetime: 200 },
@@ -67,6 +69,7 @@ export default function GameReview() {
   const [selected, setSelected] = useState(null) // { positions, moves, userColor, game }
   const [scores, setScores] = useState([]) // [{cp,mate}] per position
   const [bestMoves, setBestMoves] = useState([]) // uci per position
+  const [pvs, setPvs] = useState([]) // engine principal variation (uci[]) per position
   const [analysis, setAnalysis] = useState('idle') // idle | running | done
   const [progress, setProgress] = useState(0)
   const [engineError, setEngineError] = useState('')
@@ -142,6 +145,7 @@ export default function GameReview() {
     setPly(0)
     setScores([])
     setBestMoves([])
+    setPvs([])
     setProgress(0)
     setEngineError('')
     setAnalysis('running')
@@ -150,6 +154,7 @@ export default function GameReview() {
     const engine = getEngine()
     const nextScores = new Array(sel.positions.length).fill(null)
     const nextBest = new Array(sel.positions.length).fill(null)
+    const nextPvs = new Array(sel.positions.length).fill(null)
 
     try {
       for (let i = 0; i < sel.positions.length; i++) {
@@ -157,10 +162,12 @@ export default function GameReview() {
         const r = await engine.evaluate(sel.positions[i], { movetime })
         nextScores[i] = { cp: r.cp, mate: r.mate }
         nextBest[i] = r.bestMove
+        nextPvs[i] = r.pv
         setProgress((i + 1) / sel.positions.length)
         // Update incrementally so the board/evals come alive as analysis streams in.
         setScores(nextScores.slice())
         setBestMoves(nextBest.slice())
+        setPvs(nextPvs.slice())
       }
       if (!cancelRef.current) {
         setAnalysis('done')
@@ -216,6 +223,12 @@ export default function GameReview() {
   const currentEval = scores[ply] || null
   const lastMove = ply > 0 ? moveInfo[ply - 1] : null
   const lastWasMine = lastMove && selected && lastMove.color === selected.userColor
+
+  // Positive coaching: explain WHY the engine's move was better (with the follow-up line).
+  const bestInfo = useMemo(() => {
+    if (!selected || !lastWasMine || !lastMove?.quality) return null
+    return describeBestMove(selected.positions[ply - 1], bestMoves[ply - 1], pvs[ply - 1] || [])
+  }, [selected, lastWasMine, lastMove, ply, bestMoves, pvs])
 
   const arrows = useMemo(() => {
     if (!showBest || !selected) return []
@@ -386,12 +399,31 @@ export default function GameReview() {
                   <strong>
                     {MOVE_QUALITY[lastMove.quality].label} {MOVE_QUALITY[lastMove.quality].symbol}
                   </strong>
-                  <p>
-                    You played <b>{lastMove.san}</b> and lost about <b>{(lastMove.cpLoss / 100).toFixed(1)}</b> pawns.
-                    {bestMoves[ply - 1] && (
-                      <> The engine preferred <b>{sanFor(selected.positions[ply - 1], bestMoves[ply - 1])}</b>.</>
-                    )}
+                  <p className="coach-played">
+                    You played <b>{lastMove.san}</b> — about <b>{(lastMove.cpLoss / 100).toFixed(1)}</b> pawns worse.
                   </p>
+                  {bestInfo ? (
+                    <>
+                      <p className="coach-better">
+                        ✅ Better: <b>{bestInfo.san}</b> — {bestInfo.reason}.
+                      </p>
+                      {bestInfo.lineSan.length > 1 && (
+                        <p className="coach-line">
+                          The idea: <code>{bestInfo.lineSan.join(' ')}</code>
+                        </p>
+                      )}
+                      <SpeakButton
+                        label="Hear why"
+                        text={`Instead of ${lastMove.san}, better was ${bestInfo.san}. ${bestInfo.reason}. The line goes ${bestInfo.lineSan.join(', ')}.`}
+                      />
+                    </>
+                  ) : (
+                    bestMoves[ply - 1] && (
+                      <p className="coach-better">
+                        ✅ Better was <b>{sanFor(selected.positions[ply - 1], bestMoves[ply - 1])}</b>.
+                      </p>
+                    )
+                  )}
                 </div>
               )}
               {lastMove && (!lastMove.quality || !lastWasMine) && (

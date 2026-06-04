@@ -1,7 +1,11 @@
 # ♟ Pawnshop — a personal chess trainer
 
+**▶ Live: https://weswang616-dev.github.io/pawnshop/**
+
 A browser-based chess-improvement app built around **your** games. It finds your blunders,
 drills the Italian Game, and serves rated tactics — tuned for climbing out of the sub-1000 range.
+
+Hosted free on GitHub Pages — it **auto-deploys** every time you `git push` to `main` (see `.github/workflows/deploy.yml`).
 
 Everything runs **client-side**: the Stockfish engine analyzes your games right in your browser,
 and all data comes from free, open sources. No backend, no accounts, no data leaves your machine.

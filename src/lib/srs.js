@@ -6,7 +6,7 @@ import { Chess } from 'chess.js'
 import { repertoires } from './repertoires'
 
 const scheduler = fsrs()
-const KEY = 'srs-cards-v1'
+const KEY = 'srs-cards-v2' // v2: position-keyed cards across all variations
 const NEW_PER_SESSION = 8 // cap how many brand-new moves we introduce at once
 
 function load() {
@@ -33,25 +33,38 @@ function revive(card) {
   }
 }
 
-// One card per user-color move in a repertoire: the question is the position BEFORE the move.
+// Position part of a FEN (ignores move counters) so identical positions across variations share a card.
+function fenKey(fen) {
+  return fen.split(' ').slice(0, 4).join(' ')
+}
+
+// One card per (position, your move) across ALL variations of a repertoire, deduped so shared
+// opening moves aren't drilled twice. The question is the position BEFORE your move.
 function cardMetasForRep(rep) {
   const userColor = rep.color === 'white' ? 'w' : 'b'
-  const board = new Chess()
+  const seen = new Set()
   const out = []
-  for (let i = 0; i < rep.line.length; i++) {
-    const ply = rep.line[i]
-    if (ply.by === userColor) {
-      out.push({
-        id: `${rep.id}:${i}`,
-        repId: rep.id,
-        repName: rep.name,
-        color: rep.color,
-        fen: board.fen(),
-        move: ply.move,
-        idea: ply.idea,
-      })
+  for (const variation of rep.variations) {
+    const board = new Chess()
+    for (const ply of variation.line) {
+      if (ply.by === userColor) {
+        const fen = board.fen()
+        const key = `${fenKey(fen)}|${ply.move}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          out.push({
+            id: `${rep.id}|${key}`,
+            repId: rep.id,
+            repName: rep.name,
+            color: rep.color,
+            fen,
+            move: ply.move,
+            idea: ply.idea,
+          })
+        }
+      }
+      board.move(ply.move)
     }
-    board.move(ply.move)
   }
   return out
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess } from 'chess.js'
 import Board from '../components/Board'
+import SpeakButton from '../components/SpeakButton'
 import { repertoires, getRepertoire } from '../lib/repertoires'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { getQueue, grade, stats, Rating } from '../lib/srs'
@@ -28,14 +29,21 @@ function sanToFromTo(fen, san) {
 export default function OpeningTrainer() {
   const [mode, setMode] = useState('learn')
   const [repId, setRepId] = useLocalStorage('rep-selected', repertoires[0].id)
+  const [variationIdx, setVariationIdx] = useState(0)
   const rep = getRepertoire(repId)
+  const variation = rep.variations[Math.min(variationIdx, rep.variations.length - 1)] || rep.variations[0]
+
+  function selectRep(id) {
+    setRepId(id)
+    setVariationIdx(0)
+  }
 
   return (
     <div className="page">
       <div className="page-head">
         <h1>Repertoire Trainer</h1>
         <p className="muted">
-          Learn an opening, drill it move-by-move, then lock it into long-term memory with spaced repetition.
+          Learn an opening, drill every variation, then lock it into long-term memory with spaced repetition.
         </p>
         <div className="seg big">
           <button className={mode === 'learn' ? 'on' : ''} onClick={() => setMode('learn')}>📖 Learn</button>
@@ -48,9 +56,14 @@ export default function OpeningTrainer() {
         <Memorize />
       ) : (
         <>
-          <RepPicker value={repId} onSelect={setRepId} />
-          <p className="muted small rep-sum">{rep.summary}</p>
-          {mode === 'learn' ? <Learn key={rep.id} rep={rep} /> : <Drill key={rep.id} rep={rep} />}
+          <CoachPick />
+          <RepPicker value={repId} onSelect={selectRep} />
+          <VariationPicker rep={rep} value={variationIdx} onSelect={setVariationIdx} />
+          {mode === 'learn' ? (
+            <Learn key={rep.id + variationIdx} rep={rep} variation={variation} />
+          ) : (
+            <Drill key={rep.id + variationIdx} rep={rep} variation={variation} />
+          )}
           <Study rep={rep} />
         </>
       )}
@@ -58,12 +71,29 @@ export default function OpeningTrainer() {
   )
 }
 
+function CoachPick() {
+  const [username] = useLocalStorage('chesscom-username', '')
+  const picks = repertoires.filter((r) => r.recommended).map((r) => r.name)
+  return (
+    <div className="coach-pick">
+      <span className="weakness-eyebrow">⭐ Coach's pick — matched to how you actually play</span>
+      <p>
+        From your chess.com games{username ? ` (${username})` : ''}: you play <b>1.d4</b> as White and the{' '}
+        <b>Caro-Kann</b> as Black — and you score best with them. Your core repertoire (starred below):{' '}
+        {picks.join(', ')}.
+      </p>
+    </div>
+  )
+}
+
 function RepPicker({ value, onSelect }) {
   return (
-    <div className="rep-picker">
+    <div className="rep-picker wide-picker">
       {repertoires.map((r) => (
         <button key={r.id} className={`rep-btn ${value === r.id ? 'on' : ''}`} onClick={() => onSelect(r.id)}>
-          <span className="rep-side">{r.color === 'white' ? '♔ White' : '♚ Black'}</span>
+          <span className="rep-side">
+            {r.color === 'white' ? '♔ White' : '♚ Black'} {r.recommended && <span className="star">⭐</span>}
+          </span>
           <span className="rep-name">{r.name}</span>
         </button>
       ))}
@@ -71,8 +101,23 @@ function RepPicker({ value, onSelect }) {
   )
 }
 
-function Learn({ rep }) {
-  const line = rep.line
+function VariationPicker({ rep, value, onSelect }) {
+  return (
+    <div className="variation-row">
+      <span className="muted small">Variation:</span>
+      <div className="seg">
+        {rep.variations.map((v, i) => (
+          <button key={i} className={value === i ? 'on' : ''} onClick={() => onSelect(i)}>
+            {v.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Learn({ rep, variation }) {
+  const line = variation.line
   const positions = useMemo(() => positionsFor(line), [line])
   const [step, setStep] = useState(0)
   const current = step > 0 ? line[step - 1] : null
@@ -97,8 +142,8 @@ function Learn({ rep }) {
       <aside className="trainer-side">
         {!current ? (
           <div className="idea-card info">
-            <strong>Starting position</strong>
-            <p>You play {rep.color}. Press <b>Next</b> to walk the main line and learn the idea behind each move.</p>
+            <strong>{variation.name}</strong>
+            <p>You play {rep.color}. Press <b>Next</b> to walk this line and learn the idea behind every move.</p>
           </div>
         ) : (
           <div className="idea-card info">
@@ -108,31 +153,35 @@ function Learn({ rep }) {
             <p>{current.idea}</p>
           </div>
         )}
+        <div className="why-card">
+          <strong>Why this opening works</strong>
+          <p>{rep.whyItWorks}</p>
+          <SpeakButton text={`${rep.name}. ${rep.whyItWorks} ${rep.middlegame}`} label="Explain the opening" />
+        </div>
         {step >= line.length && (
-          <div className="done-card">That's the full main line — switch to <b>Drill</b>, then <b>Memorize</b> to keep it forever. 🧠</div>
+          <div className="done-card">End of this line — try another variation, the <b>Drill</b>, or <b>Memorize</b>. 🧠</div>
         )}
       </aside>
     </div>
   )
 }
 
-function Drill({ rep }) {
+function Drill({ rep, variation }) {
   const userColor = rep.color === 'white' ? 'w' : 'b'
-  const line = rep.line
+  const line = variation.line
   const chessRef = useRef(new Chess())
   const busyRef = useRef(false)
   const [fen, setFen] = useState(chessRef.current.fen())
   const [step, setStep] = useState(0)
   const [hint, setHint] = useState(false)
   const [message, setMessage] = useState({ type: 'info', text: '' })
-  const [completions, setCompletions] = useLocalStorage(`drill-completions:${rep.id}`, 0)
+  const [completions, setCompletions] = useLocalStorage(`drill-completions:${rep.id}:${variation.name}`, 0)
 
   function finish() {
-    setMessage({ type: 'success', text: '🎉 Full main line complete! Reset to drill it again.' })
+    setMessage({ type: 'success', text: '🎉 Variation complete! Reset to drill it again, or pick another variation.' })
     setCompletions((c) => c + 1)
   }
 
-  // Auto-play the opponent's moves from `fromStep` until it's the user's turn (or the line ends).
   function playOpponent(fromStep) {
     let s = fromStep
     const step1 = () => {
@@ -170,7 +219,7 @@ function Drill({ rep }) {
     setStep(0)
     setMessage({
       type: 'info',
-      text: userColor === 'w' ? 'You play White. Drag the first move.' : 'You play Black. White moves first…',
+      text: userColor === 'w' ? 'You play White. Make the first move.' : 'You play Black. White moves first…',
     })
     if (line[0] && line[0].by !== userColor) playOpponent(0)
   }
@@ -194,7 +243,7 @@ function Drill({ rep }) {
     if (!move) return false
     if (!exp || move.from !== exp.from || move.to !== exp.to) {
       chessRef.current.undo()
-      setMessage({ type: 'error', text: `Not the book move. ${rep.name} plays ${expected.move} — ${expected.idea}` })
+      setMessage({ type: 'error', text: `Not the book move. This line plays ${expected.move} — ${expected.idea}` })
       return false
     }
     setFen(chessRef.current.fen())
@@ -228,7 +277,7 @@ function Drill({ rep }) {
         <div className="progress thin">
           <div className="progress-bar" style={{ width: `${Math.round((step / line.length) * 100)}%` }} />
         </div>
-        <p className="muted small">You play {rep.color}; I'll answer for the other side. Wrong moves are explained, not punished.</p>
+        <p className="muted small">Click a piece then a square, or drag. I play the other side; wrong moves are explained.</p>
       </aside>
     </div>
   )
@@ -238,7 +287,7 @@ function Memorize() {
   const [queue, setQueue] = useState(() => getQueue())
   const [idx, setIdx] = useState(0)
   const [st, setSt] = useState(() => stats())
-  const [status, setStatus] = useState('review') // review | correct | revealed
+  const [status, setStatus] = useState('review')
   const [fen, setFen] = useState(null)
   const [arrow, setArrow] = useState([])
   const [message, setMessage] = useState('')
@@ -321,7 +370,7 @@ function Memorize() {
   if (!queue.length || idx >= queue.length) {
     const title = !queue.length ? 'All caught up! 🎉' : 'Session complete! ✓'
     const body = !queue.length
-      ? 'No moves are due right now. Learn a new line, or come back later — FSRS will resurface moves right before you’d forget them.'
+      ? 'No moves are due right now. Learn a new variation, or come back later — FSRS resurfaces moves right before you’d forget them.'
       : 'You reviewed every due move. They’ll come back at the perfect time to stick.'
     return (
       <div className="memorize-done">
@@ -370,8 +419,8 @@ function Memorize() {
           <p>{message}</p>
         </div>
         <p className="muted small">
-          Spaced repetition across your <b>whole</b> repertoire (FSRS). Moves you find hard come back sooner; ones you
-          know drift further out. A few minutes a day keeps the lines permanently sharp.
+          Spaced repetition across your <b>whole</b> repertoire (FSRS) — every variation of every opening. Hard moves
+          come back sooner. A few minutes a day keeps it all sharp.
         </p>
       </aside>
     </div>
@@ -390,6 +439,13 @@ function Pill({ n, label }) {
 function Study({ rep }) {
   return (
     <section className="study">
+      <div className="study-col wide">
+        <div className="study-head">
+          <h2>Middlegame plans</h2>
+          <SpeakButton text={`Middlegame plans for the ${rep.name}. ${rep.middlegame}`} label="Explain the plans" />
+        </div>
+        <p className="muted">{rep.middlegame}</p>
+      </div>
       <div className="study-col">
         <h2>Plans &amp; ideas</h2>
         <ul>
