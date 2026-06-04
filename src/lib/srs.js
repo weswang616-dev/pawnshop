@@ -77,12 +77,22 @@ export function allCardMetas() {
 export function seed() {
   const store = load()
   let changed = false
+  const valid = new Set()
   for (const meta of allCardMetas()) {
+    valid.add(meta.id)
     if (!store[meta.id]) {
       store[meta.id] = { meta, card: createEmptyCard(new Date()) }
       changed = true
     } else if (store[meta.id].meta.move !== meta.move || store[meta.id].meta.idea !== meta.idea) {
       store[meta.id].meta = meta
+      changed = true
+    }
+  }
+  // Prune cards whose move/repertoire no longer exists (e.g. an opening we removed),
+  // so dropped lines don't keep resurfacing in the review queue.
+  for (const id of Object.keys(store)) {
+    if (!valid.has(id)) {
+      delete store[id]
       changed = true
     }
   }

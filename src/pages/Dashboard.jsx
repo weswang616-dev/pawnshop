@@ -26,6 +26,12 @@ const TRAINERS = [
     title: 'Tactics',
     blurb: 'Solve real rated puzzles — and train the exact weakness your games reveal. Pattern recognition wins games.',
   },
+  {
+    to: '/practice?tab=guess',
+    emoji: '🎯',
+    title: 'Guess the Move',
+    blurb: 'Play through the games of Morphy, Anderssen and Marshall — guess each move and learn how the legends attacked.',
+  },
 ]
 
 const PLAN = [

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess } from 'chess.js'
 import Board from '../components/Board'
 import SpeakButton from '../components/SpeakButton'
+import { speak, stopSpeaking } from '../lib/speak'
 import { repertoires, getRepertoire } from '../lib/repertoires'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { getQueue, grade, stats, Rating } from '../lib/srs'
@@ -76,11 +77,11 @@ function CoachPick() {
   const picks = repertoires.filter((r) => r.recommended).map((r) => r.name)
   return (
     <div className="coach-pick">
-      <span className="weakness-eyebrow">⭐ Coach's pick — matched to how you actually play</span>
+      <span className="weakness-eyebrow">⭐ Coach's pick — your sharpened repertoire</span>
       <p>
-        From your chess.com games{username ? ` (${username})` : ''}: you play <b>1.d4</b> as White and the{' '}
-        <b>Caro-Kann</b> as Black — and you score best with them. Your core repertoire (starred below):{' '}
-        {picks.join(', ')}.
+        You’re trading the London for the <b>Italian Game</b> as White{username ? `, ${username}` : ''} — a more
+        instructive, tactical opening that keeps teaching you chess as you climb — and keeping the rock-solid{' '}
+        <b>Caro-Kann</b> as Black. Your core repertoire (starred below): {picks.join(', ')}.
       </p>
     </div>
   )
@@ -120,6 +121,7 @@ function Learn({ rep, variation }) {
   const line = variation.line
   const positions = useMemo(() => positionsFor(line), [line])
   const [step, setStep] = useState(0)
+  const [autoSpeak, setAutoSpeak] = useLocalStorage('opening-autospeak', true)
   const current = step > 0 ? line[step - 1] : null
 
   const arrows = useMemo(() => {
@@ -127,6 +129,14 @@ function Learn({ rep, variation }) {
     const ft = sanToFromTo(positions[step - 1], current.move)
     return ft ? [{ startSquare: ft.from, endSquare: ft.to, color: current.by === 'w' ? '#7cb342' : '#5b8def' }] : []
   }, [current, step, positions])
+
+  // Narrate each move (in plain English) as you step through, if auto-narrate is on.
+  useEffect(() => {
+    if (autoSpeak && current) speak(`${current.move}. ${current.idea}`)
+    return () => stopSpeaking()
+  }, [autoSpeak, current])
+
+  const sideLabel = current ? (current.by === 'w' ? 'White' : 'Black') : ''
 
   return (
     <div className="trainer-layout">
@@ -138,6 +148,10 @@ function Learn({ rep, variation }) {
           <span className="ply-counter">{step}/{line.length}</span>
           <button onClick={() => setStep((s) => Math.min(line.length, s + 1))} disabled={step >= line.length}>Next ›</button>
         </div>
+        <label className="toggle narrate-toggle">
+          <input type="checkbox" checked={autoSpeak} onChange={(e) => setAutoSpeak(e.target.checked)} />
+          🔊 Narrate each move
+        </label>
       </div>
       <aside className="trainer-side">
         {!current ? (
@@ -151,6 +165,7 @@ function Learn({ rep, variation }) {
               {Math.ceil(step / 2)}{current.by === 'w' ? '.' : '…'} {current.move}
             </span>
             <p>{current.idea}</p>
+            <SpeakButton text={`${sideLabel} plays ${current.move}. ${current.idea}`} label="Hear this move" />
           </div>
         )}
         <div className="why-card">
