@@ -105,8 +105,10 @@ function isNew(entry) {
 }
 
 // Build a study queue: everything due now (oldest first), then up to N fresh cards.
-export function getQueue(now = new Date()) {
-  const entries = Object.values(seed()).map((e) => ({ ...e, card: revive(e.card) }))
+// Pass a repId to drill a single opening; null/undefined studies the whole repertoire.
+export function getQueue(repId = null, now = new Date()) {
+  let entries = Object.values(seed()).map((e) => ({ ...e, card: revive(e.card) }))
+  if (repId) entries = entries.filter((e) => e.meta.repId === repId)
   const due = entries
     .filter((e) => !isNew(e) && e.card.due <= now)
     .sort((a, b) => a.card.due - b.card.due)
@@ -123,8 +125,9 @@ export function grade(id, rating, now = new Date()) {
   save(store)
 }
 
-export function stats(now = new Date()) {
-  const entries = Object.values(seed()).map((e) => ({ ...e, card: revive(e.card) }))
+export function stats(repId = null, now = new Date()) {
+  let entries = Object.values(seed()).map((e) => ({ ...e, card: revive(e.card) }))
+  if (repId) entries = entries.filter((e) => e.meta.repId === repId)
   return {
     total: entries.length,
     fresh: entries.filter(isNew).length,

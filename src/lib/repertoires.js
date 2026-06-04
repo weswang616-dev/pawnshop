@@ -31,6 +31,10 @@ export const italian = {
     "Keep your light-squared bishop healthy — if it gets hit by …Na5, retreat it to b3, never home to f1. " +
     "When Black avoids the main lines (the Petroff …Nf6 or Philidor …d6), grab the center with d4 and enjoy your freer, more active pieces. " +
     "Castle early, watch the a2–g8 diagonal for tactics, and never win a pawn if it costs you development.",
+  endgame:
+    'The Italian usually simplifies into balanced endgames where the better-placed pieces win. Your trumps are the bishop pair and a healthy structure: ' +
+    'keep both bishops if you can, put your rooks on the open d- or e-file, and roll your central or kingside pawn majority. ' +
+    'If you grabbed the bishop pair or won the f7-pawn, trade pieces and convert; if it’s level, your more active pieces make yours the easier, safer side to play.',
   variations: [
     {
       name: '3…Bc5: Giuoco Pianissimo (main)',
@@ -253,6 +257,10 @@ export const caroKann = {
     "The key freeing break is …c5, hitting White's d4-pawn once you're developed; in the Advance Variation that …c5 break is your main source of counterplay. " +
     "Trade off White's attacking light-squared bishop when you can, aim for solid piece play, and you'll often reach endgames where your structure is simply better. " +
     "Patience wins Caro-Kann games — develop, castle, break with …c5, and let White over-extend. When you want LESS theory, the Tartakower (…Nf6 then …exf6) gives a sound, easy-to-play game.",
+  endgame:
+    'This is the Caro-Kann’s secret weapon: you reach endgames where your structure is simply better. With solid pawns on c6 and e6 and no weaknesses, ' +
+    'happily trade pieces — White’s little weak points (a loose d4 or e5 pawn, or the isolated d-pawn in the Panov) become real targets. ' +
+    'March your king up, put a rook behind any passed pawn, and grind. Many Caro-Kann games are won simply by being the more solid side in a long endgame.',
   variations: [
     {
       name: '3.Nc3: Classical (4…Bf5)',
@@ -478,6 +486,10 @@ export const qgd = {
   middlegame:
     "Stay solid and look for one of two freeing breaks: …c5 to hit White's center, or …dxc4 followed by …c5 or …e5 to open up. " +
     "If you feel cramped, trade a pair of minor pieces. Don't grab pawns on the queenside until you've finished developing — loose pawns become targets.",
+  endgame:
+    'QGD endgames are rock-solid and pleasant for you. Trade into an endgame when you’re cramped, and use the …c5 break or the minority attack (…b5–b4) to ' +
+    'give White a weak pawn (often on the c-file). Put your rooks on the c- and e-files, activate your king, and target that weakness. ' +
+    'A sound structure plus one outside target to attack is a comfortable — often winning — endgame recipe.',
   variations: [
     {
       name: 'Main line (Orthodox QGD)',
@@ -536,6 +548,10 @@ export const openGame = {
     "Bonus: it’s the mirror image of your Italian, so every idea you learn as White you’ll understand from the other side too.",
   middlegame:
     "You'll often mirror White's setup. Reroute a knight to a good square (…Nbd7 or …Na5 to hit a c4-bishop), prepare the …d5 or …c6+…d5 break, and watch your f7-square.",
+  endgame:
+    'Open-game endgames are sharp and symmetrical — whoever has the more active rook and the better minor piece is on top. ' +
+    'Keep your knights and bishops busy, grab open files with your rooks, and watch king safety. ' +
+    'If you reached a sound structure, trade into the endgame and outplay your opponent with more active pieces and a safer king.',
   variations: [
     {
       name: 'Italian as Black (…Bc5)',

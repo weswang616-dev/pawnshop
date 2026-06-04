@@ -158,7 +158,8 @@ function Learn({ rep, variation }) {
         {!current ? (
           <div className="idea-card info">
             <strong>{variation.name}</strong>
-            <p>You play {rep.color}. Press <b>Next</b> to walk this line and learn the idea behind every move.</p>
+            {variation.plan && <p className="line-intro-plan">🎯 {variation.plan}</p>}
+            <p className="muted small">You play {rep.color}. Press <b>Next</b> to walk the line and learn the idea behind every move.</p>
           </div>
         ) : (
           <div className="idea-card info">
@@ -300,10 +301,35 @@ function Drill({ rep, variation }) {
   )
 }
 
+function shortRepName(r) {
+  if (r.id === 'italian-game') return 'Italian'
+  if (r.id === 'caro-kann') return 'Caro-Kann'
+  if (r.id === 'black-vs-d4-qgd') return 'QGD vs 1.d4'
+  if (r.id === 'black-vs-e4-e5') return 'Open Game'
+  return r.name
+}
+
+function MemorizePicker({ value, onSelect }) {
+  return (
+    <div className="variation-row memorize-pick">
+      <span className="muted small">Memorize:</span>
+      <div className="variation-chips">
+        <button className={`var-chip ${value === '' ? 'on' : ''}`} onClick={() => onSelect('')}>All openings</button>
+        {repertoires.map((r) => (
+          <button key={r.id} className={`var-chip ${value === r.id ? 'on' : ''}`} onClick={() => onSelect(r.id)}>
+            {r.color === 'white' ? '♔' : '♚'} {shortRepName(r)}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function Memorize() {
-  const [queue, setQueue] = useState(() => getQueue())
+  const [repFilter, setRepFilter] = useLocalStorage('memorize-rep', '')
+  const [queue, setQueue] = useState(() => getQueue(repFilter || null))
   const [idx, setIdx] = useState(0)
-  const [st, setSt] = useState(() => stats())
+  const [st, setSt] = useState(() => stats(repFilter || null))
   const [status, setStatus] = useState('review')
   const [fen, setFen] = useState(null)
   const [arrow, setArrow] = useState([])
@@ -313,6 +339,18 @@ function Memorize() {
   const hintRef = useRef(false)
 
   const current = queue[idx] || null
+
+  function refresh() {
+    setQueue(getQueue(repFilter || null))
+    setIdx(0)
+    setSt(stats(repFilter || null))
+  }
+
+  // Reload the deck whenever the opening filter changes.
+  useEffect(() => {
+    refresh()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repFilter])
 
   useEffect(() => {
     if (!current) return
@@ -327,12 +365,6 @@ function Memorize() {
 
   function expectedFromTo() {
     return sanToFromTo(current.meta.fen, current.meta.move)
-  }
-
-  function reloadQueue() {
-    setQueue(getQueue())
-    setIdx(0)
-    setSt(stats())
   }
 
   function onDrop(from, to) {
@@ -380,35 +412,42 @@ function Memorize() {
     if (idx + 1 < queue.length) setIdx(idx + 1)
     else {
       setIdx(queue.length)
-      setSt(stats())
+      setSt(stats(repFilter || null))
     }
   }
 
   if (!queue.length || idx >= queue.length) {
+    const filtered = repFilter ? repertoires.find((r) => r.id === repFilter) : null
+    const scope = filtered ? ` in the ${shortRepName(filtered)}` : ''
     const title = !queue.length ? 'All caught up! 🎉' : 'Session complete! ✓'
     const body = !queue.length
-      ? 'No moves are due right now. Learn a new variation, or come back later — FSRS resurfaces moves right before you’d forget them.'
+      ? `No moves are due${scope} right now. Learn a new variation, switch openings above, or come back later — FSRS resurfaces moves right before you’d forget them.`
       : 'You reviewed every due move. They’ll come back at the perfect time to stick.'
     return (
-      <div className="memorize-done">
-        <div className="srs-stats">
-          <Pill n={st.due} label="Due" />
-          <Pill n={st.fresh} label="New" />
-          <Pill n={st.learned} label="Learned" />
-          <Pill n={st.total} label="Total" />
+      <>
+        <MemorizePicker value={repFilter} onSelect={setRepFilter} />
+        <div className="memorize-done">
+          <div className="srs-stats">
+            <Pill n={st.due} label="Due" />
+            <Pill n={st.fresh} label="New" />
+            <Pill n={st.learned} label="Learned" />
+            <Pill n={st.total} label="Total" />
+          </div>
+          <div className="done-card big">
+            <h2>{title}</h2>
+            <p>{body}</p>
+            <button className="btn-primary" onClick={refresh}>Check for due cards</button>
+          </div>
         </div>
-        <div className="done-card big">
-          <h2>{title}</h2>
-          <p>{body}</p>
-          <button className="btn-primary" onClick={reloadQueue}>Check for due cards</button>
-        </div>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className="trainer-layout">
-      <div className="board-col">
+    <>
+      <MemorizePicker value={repFilter} onSelect={setRepFilter} />
+      <div className="trainer-layout">
+        <div className="board-col">
         <Board
           fen={fen}
           onDrop={onDrop}
@@ -436,11 +475,12 @@ function Memorize() {
           <p>{message}</p>
         </div>
         <p className="muted small">
-          Spaced repetition across your <b>whole</b> repertoire (FSRS) — every variation of every opening. Hard moves
-          come back sooner. A few minutes a day keeps it all sharp.
+          Spaced repetition (FSRS) over {repFilter ? 'this opening' : 'your whole repertoire'} — every variation. Hard
+          moves come back sooner. A few minutes a day keeps it all sharp.
         </p>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    </>
   )
 }
 
@@ -472,6 +512,15 @@ function Study({ rep, variation }) {
         </div>
         <p className="muted">{rep.middlegame}</p>
       </div>
+      {rep.endgame && (
+        <div className="study-col wide">
+          <div className="study-head">
+            <h2>The endgame plan</h2>
+            <SpeakButton text={`Endgame plan for the ${rep.name}. ${rep.endgame}`} label="Explain the endgame" />
+          </div>
+          <p className="muted">{rep.endgame}</p>
+        </div>
+      )}
       <div className="study-col">
         <h2>Plans &amp; ideas</h2>
         <ul>
