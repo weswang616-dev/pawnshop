@@ -3,7 +3,7 @@
 // bishops), and a couple of takeaways. No engine calls of its own: it reads the Stockfish
 // data Game Review already computed, plus simple board scans with chess.js.
 import { Chess } from 'chess.js'
-import { centipawnLoss, uciToMove } from './analysis'
+import { centipawnLoss, uciToMove, formatLoss } from './analysis'
 import { describeBestMove } from './explain'
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -152,16 +152,20 @@ export function coachGame({ positions, moves, scores, bestMoves, pvs, userColor 
   let turningPoint = null
   if (worst && worst.loss >= 120) {
     const info = bestMoves[worst.i] ? describeBestMove(positions[worst.i], bestMoves[worst.i], pvs[worst.i] || []) : null
+    const played = moves[worst.i].san
     const better = info?.san || (bestMoves[worst.i] ? sanForUci(positions[worst.i], bestMoves[worst.i]) : null)
-    turningPoint = {
-      moveNo: moveNoOf(worst.i),
-      played: moves[worst.i].san,
-      better,
-      reason: info?.reason || null,
-      lineSan: info?.lineSan || [],
-      swing: (worst.loss / 100).toFixed(1),
+    // If the engine's best move IS the move you played, it wasn't a mistake (eval noise) — skip it.
+    if (!better || better !== played) {
+      turningPoint = {
+        moveNo: moveNoOf(worst.i),
+        played,
+        better,
+        reason: info?.reason || null,
+        lineSan: info?.lineSan || [],
+        lossText: formatLoss(worst.loss),
+      }
+      workOn.unshift(`In spots like move ${turningPoint.moveNo}, slow down and check: does my move hang anything?`)
     }
-    if (better) workOn.unshift(`In spots like move ${turningPoint.moveNo}, slow down and check: does my move hang anything?`)
   }
 
   // --- Positional ideas (scan a representative middlegame position) ---
@@ -186,7 +190,7 @@ export function coachReportToText(r) {
   if (r.turningPoint) {
     const t = r.turningPoint
     parts.push(
-      `The turning point was move ${t.moveNo}: you played ${t.played}, losing about ${t.swing} pawns.` +
+      `The turning point was move ${t.moveNo}: you played ${t.played}, ${t.lossText}.` +
         (t.better ? ` Better was ${t.better}${t.reason ? ` — ${t.reason}` : ''}.` : ''),
     )
   }

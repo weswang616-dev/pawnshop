@@ -11,8 +11,10 @@ import {
   classifyLoss,
   MOVE_QUALITY,
   formatEval,
+  formatLoss,
   uciToMove,
   gameAccuracy,
+  terminalScore,
 } from '../lib/analysis'
 import { classifyBlunder, recordGameThemes } from '../lib/weakness'
 import { describeBestMove } from '../lib/explain'
@@ -165,10 +167,19 @@ export default function GameReview() {
     try {
       for (let i = 0; i < sel.positions.length; i++) {
         if (cancelRef.current) return
-        const r = await engine.evaluate(sel.positions[i], { movetime })
-        nextScores[i] = { cp: r.cp, mate: r.mate }
-        nextBest[i] = r.bestMove
-        nextPvs[i] = r.pv
+        // Checkmate/stalemate positions have no engine score — supply a decisive/level one so a
+        // mating move isn't scored as a giant blunder. (Also saves an engine call.)
+        const term = terminalScore(sel.positions[i])
+        if (term) {
+          nextScores[i] = term
+          nextBest[i] = null
+          nextPvs[i] = null
+        } else {
+          const r = await engine.evaluate(sel.positions[i], { movetime })
+          nextScores[i] = { cp: r.cp, mate: r.mate }
+          nextBest[i] = r.bestMove
+          nextPvs[i] = r.pv
+        }
         setProgress((i + 1) / sel.positions.length)
         // Update incrementally so the board/evals come alive as analysis streams in.
         setScores(nextScores.slice())
@@ -464,7 +475,7 @@ export default function GameReview() {
                     {MOVE_QUALITY[lastMove.quality].label} {MOVE_QUALITY[lastMove.quality].symbol}
                   </strong>
                   <p className="coach-played">
-                    You played <b>{lastMove.san}</b> — about <b>{(lastMove.cpLoss / 100).toFixed(1)}</b> pawns worse.
+                    You played <b>{lastMove.san}</b> — {formatLoss(lastMove.cpLoss)}.
                   </p>
                   {bestInfo ? (
                     <>

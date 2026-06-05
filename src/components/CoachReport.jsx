@@ -28,7 +28,7 @@ export default function CoachReport({ report }) {
         <div className="cr-block">
           <span className="cr-eyebrow bad">⚠️ Turning point</span>
           <p>
-            Move <b>{tp.moveNo}</b>: you played <b>{tp.played}</b> (about {tp.swing} pawns worse).
+            Move <b>{tp.moveNo}</b>: you played <b>{tp.played}</b> ({tp.lossText}).
             {tp.better && (
               <>
                 {' '}

@@ -1,7 +1,32 @@
-// Pure helpers for turning engine evaluations into human-readable, blunder-aware feedback.
-// No engine or DOM here — just math on { cp, mate } objects (always White's perspective).
+// Helpers for turning engine evaluations into human-readable, blunder-aware feedback.
+// Math on { cp, mate } objects (always White's perspective), plus terminal-position detection
+// (engines return no score for a checkmated position — we must supply a decisive one).
+import { Chess } from 'chess.js'
 
 const MATE_SCORE = 100000
+
+// A finished position has no engine score. Checkmate is decisive for the side that delivered it;
+// stalemate/draws are dead level. Returns a White-perspective { cp, mate } or null if not terminal.
+// Without this, a checkmating move looks like it crashed from +mate to 0.0 — a fake ~999-pawn blunder.
+export function terminalScore(fen) {
+  try {
+    const c = new Chess(fen)
+    if (c.isCheckmate()) return c.turn() === 'w' ? { cp: -MATE_SCORE, mate: null } : { cp: MATE_SCORE, mate: null }
+    if (c.isStalemate() || c.isInsufficientMaterial() || c.isThreefoldRepetition() || c.isDraw()) {
+      return { cp: 0, mate: null }
+    }
+  } catch {
+    /* not a parseable position */
+  }
+  return null
+}
+
+// Human phrase for a centipawn loss. Mate-magnitude losses (≥ 20 pawns) read as a blunder rather
+// than an absurd "999.0 pawns worse".
+export function formatLoss(cpLoss) {
+  if (cpLoss >= 2000) return 'a game-losing blunder'
+  return `about ${(cpLoss / 100).toFixed(1)} pawns worse`
+}
 
 // Collapse a { cp, mate } eval into a single White-perspective centipawn scalar so we can
 // do arithmetic (e.g. how much did this move lose?). Mates become very large numbers,
@@ -35,9 +60,10 @@ export const MOVE_QUALITY = {
 
 // Pretty eval string from White's perspective, e.g. "+1.4", "-0.7", "M3", "M-2".
 export function formatEval({ cp, mate }) {
-  if (mate != null) return mate > 0 ? `M${mate}` : `M${mate}`
+  if (mate != null) return `M${mate}`
+  if (cp != null && Math.abs(cp) >= 20000) return cp > 0 ? '+M' : '-M' // decisive / checkmate
   const pawns = (cp ?? 0) / 100
-  const sign = pawns > 0 ? '+' : pawns < 0 ? '' : ''
+  const sign = pawns > 0 ? '+' : ''
   return `${sign}${pawns.toFixed(1)}`
 }
 
