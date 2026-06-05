@@ -303,6 +303,14 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 .rep-departure { background: linear-gradient(180deg, rgba(124, 179, 66, 0.1), rgba(124, 179, 66, 0.03)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
 .rep-departure p { color: var(--text); font-size: 0.92rem; }
 
+/* ---------- woodpecker ---------- */
+.wp-build { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.wp-head { display: flex; flex-direction: column; gap: 2px; }
+.cycle-history { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.cycle-history li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 6px 10px; background: var(--panel-2); border-radius: 7px; font-size: 0.85rem; }
+.cycle-history li.best { border: 1px solid var(--accent); }
+.mono { font-variant-numeric: tabular-nums; font-weight: 700; }
+
 /* ---------- repertoire picker + SRS ---------- */
 .rep-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 6px; }
 .rep-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; padding: 12px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
