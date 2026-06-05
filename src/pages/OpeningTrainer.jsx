@@ -6,7 +6,7 @@ import VoicePicker from '../components/VoicePicker'
 import { speak, stopSpeaking } from '../lib/speak'
 import { repertoires, getRepertoire } from '../lib/repertoires'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import { getQueue, grade, stats, Rating } from '../lib/srs'
+import { getQueue, gradePosition, bookMovesFor, stats, Rating } from '../lib/srs'
 
 function positionsFor(line) {
   const c = new Chess()
@@ -388,7 +388,6 @@ function Memorize() {
 
   function onDrop(from, to) {
     if (!current || status !== 'review') return false
-    const exp = expectedFromTo()
     let move
     try {
       move = chessRef.current.move({ from, to, promotion: 'q' })
@@ -396,17 +395,21 @@ function Memorize() {
       move = null
     }
     if (!move) return false
-    if (!exp || move.from !== exp.from || move.to !== exp.to) {
+    // Accept ANY of your repertoire moves from this position (branch points have more than one).
+    const book = bookMovesFor(current.meta.fen, current.meta.repId)
+    const matched = book.find((b) => b.move === move.san)
+    if (!matched) {
       chessRef.current.undo()
       attemptsRef.current += 1
-      setMessage('✗ Not your line — try again, or reveal the answer.')
+      setMessage('✗ Not in your repertoire here — try again, or reveal the answer.')
       return false
     }
     setFen(chessRef.current.fen())
     const rating = attemptsRef.current === 0 && !hintRef.current ? Rating.Good : Rating.Hard
-    grade(current.meta.id, rating)
+    gradePosition(current.meta.repId, current.meta.fen, rating)
     setStatus('correct')
-    setMessage(`✓ ${current.meta.move} — ${current.meta.idea}`)
+    const others = book.filter((b) => b.move !== move.san).map((b) => b.move)
+    setMessage(`✓ ${move.san} — ${matched.idea}${others.length ? `  ·  also book here: ${others.join(', ')}` : ''}`)
     return true
   }
 
@@ -421,9 +424,10 @@ function Memorize() {
     if (!current || status !== 'review') return
     const exp = expectedFromTo()
     if (exp) setArrow([{ startSquare: exp.from, endSquare: exp.to, color: '#e8974f' }])
-    grade(current.meta.id, Rating.Again)
+    gradePosition(current.meta.repId, current.meta.fen, Rating.Again)
     setStatus('revealed')
-    setMessage(`The move is ${current.meta.move} — ${current.meta.idea}`)
+    const moves = bookMovesFor(current.meta.fen, current.meta.repId).map((b) => b.move)
+    setMessage(`Your move${moves.length > 1 ? 's' : ''} here: ${moves.join(' or ')} — ${current.meta.idea}`)
   }
 
   function next() {

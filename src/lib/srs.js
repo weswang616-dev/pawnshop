@@ -38,6 +38,12 @@ function fenKey(fen) {
   return fen.split(' ').slice(0, 4).join(' ')
 }
 
+// A position within a repertoire — used to collapse branch points where you have more than one
+// book move (e.g. 3…Bc5: c3 for the Italian OR b4 for the Evans) into a single prompt.
+function posKey(meta) {
+  return `${meta.repId}|${fenKey(meta.fen)}`
+}
+
 // One card per (position, your move) across ALL variations of a repertoire, deduped so shared
 // opening moves aren't drilled twice. The question is the position BEFORE your move.
 function cardMetasForRep(rep) {
@@ -104,16 +110,40 @@ function isNew(entry) {
   return entry.card.state === State.New || entry.card.reps === 0
 }
 
-// Build a study queue: everything due now (oldest first), then up to N fresh cards.
+// Build a study queue: everything due now (oldest first), then up to N fresh cards — collapsed
+// to ONE prompt per position so branch points (multiple of your moves) aren't asked twice.
 // Pass a repId to drill a single opening; null/undefined studies the whole repertoire.
 export function getQueue(repId = null, now = new Date()) {
   let entries = Object.values(seed()).map((e) => ({ ...e, card: revive(e.card) }))
   if (repId) entries = entries.filter((e) => e.meta.repId === repId)
-  const due = entries
-    .filter((e) => !isNew(e) && e.card.due <= now)
-    .sort((a, b) => a.card.due - b.card.due)
-  const fresh = entries.filter(isNew).slice(0, NEW_PER_SESSION)
-  return [...due, ...fresh]
+  const due = entries.filter((e) => !isNew(e) && e.card.due <= now).sort((a, b) => a.card.due - b.card.due)
+  const fresh = entries.filter(isNew)
+  const seen = new Set()
+  const dedup = []
+  for (const e of [...due, ...fresh]) {
+    const k = posKey(e.meta)
+    if (seen.has(k)) continue
+    seen.add(k)
+    dedup.push(e)
+  }
+  const dueP = dedup.filter((e) => !isNew(e))
+  const freshP = dedup.filter(isNew).slice(0, NEW_PER_SESSION)
+  return [...dueP, ...freshP]
+}
+
+// All of YOUR repertoire moves available from a position (across variations), so the Memorize
+// drill can accept any of them. Returns [{ move, idea, repName }].
+export function bookMovesFor(fen, repId = null) {
+  const k = fenKey(fen)
+  const seen = new Set()
+  const out = []
+  for (const m of allCardMetas()) {
+    if (repId && m.repId !== repId) continue
+    if (fenKey(m.fen) !== k || seen.has(m.move)) continue
+    seen.add(m.move)
+    out.push({ move: m.move, idea: m.idea, repName: m.repName })
+  }
+  return out
 }
 
 export function grade(id, rating, now = new Date()) {
@@ -125,14 +155,43 @@ export function grade(id, rating, now = new Date()) {
   save(store)
 }
 
+// Grade EVERY card that shares a position (all your book moves there), so the collapsed prompt
+// schedules consistently and the alternative moves don't linger as "due".
+export function gradePosition(repId, fen, rating, now = new Date()) {
+  const store = load()
+  const k = fenKey(fen)
+  let changed = false
+  for (const [id, entry] of Object.entries(store)) {
+    if (entry.meta.repId === repId && fenKey(entry.meta.fen) === k) {
+      const { card } = scheduler.next(revive(entry.card), now, rating)
+      store[id] = { ...entry, card }
+      changed = true
+    }
+  }
+  if (changed) save(store)
+}
+
 export function stats(repId = null, now = new Date()) {
   let entries = Object.values(seed()).map((e) => ({ ...e, card: revive(e.card) }))
   if (repId) entries = entries.filter((e) => e.meta.repId === repId)
+  // Count POSITIONS, not raw cards — collapse branch duplicates to their most-urgent card.
+  const byPos = new Map()
+  for (const e of entries) {
+    const k = posKey(e.meta)
+    const cur = byPos.get(k)
+    if (!cur) {
+      byPos.set(k, e)
+      continue
+    }
+    const urgency = (x) => (isNew(x) ? 0 : +x.card.due)
+    if (urgency(e) < urgency(cur)) byPos.set(k, e)
+  }
+  const reps = [...byPos.values()]
   return {
-    total: entries.length,
-    fresh: entries.filter(isNew).length,
-    due: entries.filter((e) => !isNew(e) && e.card.due <= now).length,
-    learned: entries.filter((e) => e.card.state === State.Review).length,
+    total: reps.length,
+    fresh: reps.filter(isNew).length,
+    due: reps.filter((e) => !isNew(e) && e.card.due <= now).length,
+    learned: reps.filter((e) => e.card.state === State.Review).length,
   }
 }
 
