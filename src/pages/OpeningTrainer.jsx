@@ -177,7 +177,21 @@ function Learn({ rep, variation }) {
         </div>
         <VoicePicker />
         {step >= line.length && (
-          <div className="done-card">End of this line — try another variation, the <b>Drill</b>, or <b>Memorize</b>. 🧠</div>
+          <div className="done-card next-steps">
+            <strong>🎯 Opening done — here’s what to do next</strong>
+            {variation.plan && <p>{variation.plan}</p>}
+            {variation.plan && (
+              <SpeakButton
+                text={`What to do after the opening in the ${variation.name} line. ${variation.plan}`}
+                label="Hear what to do next"
+              />
+            )}
+            <p className="muted small">
+              You don’t need to memorize more moves — from here it’s about following this plan, improving your
+              worst-placed piece, and keeping your king safe. See the full middlegame &amp; endgame plans below, or try
+              the <b>Drill</b>.
+            </p>
+          </div>
         )}
       </aside>
     </div>
@@ -196,7 +210,12 @@ function Drill({ rep, variation }) {
   const [completions, setCompletions] = useLocalStorage(`drill-completions:${rep.id}:${variation.name}`, 0)
 
   function finish() {
-    setMessage({ type: 'success', text: '🎉 Variation complete! Reset to drill it again, or pick another variation.' })
+    setMessage({
+      type: 'success',
+      text: variation.plan
+        ? `🎉 Line complete — now you’re out of book. Your plan from here: ${variation.plan}`
+        : '🎉 Variation complete! Reset to drill it again, or pick another variation.',
+    })
     setCompletions((c) => c + 1)
   }
 
