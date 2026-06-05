@@ -314,6 +314,17 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 .seg.big.tabs button { border: 1px solid var(--border); border-radius: 9px; }
 .seg.big.tabs button.on { border-color: var(--accent); }
 
+/* ---------- coach report ---------- */
+.coach-report { background: var(--panel); border: 1px solid var(--accent); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.cr-block { display: flex; flex-direction: column; gap: 4px; }
+.cr-block ul { margin: 4px 0 0; padding-left: 18px; }
+.cr-block li { font-size: 0.88rem; color: var(--text); margin-bottom: 5px; }
+.cr-block p { font-size: 0.9rem; color: var(--text); }
+.cr-eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--muted); }
+.cr-eyebrow.good { color: var(--accent); }
+.cr-eyebrow.bad { color: var(--danger); }
+.cr-eyebrow.idea { color: #e8c84a; }
+
 /* ---------- repertoire picker + SRS ---------- */
 .rep-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 6px; }
 .rep-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; padding: 12px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }

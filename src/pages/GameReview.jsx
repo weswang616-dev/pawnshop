@@ -18,8 +18,10 @@ import { classifyBlunder, recordGameThemes } from '../lib/weakness'
 import { describeBestMove } from '../lib/explain'
 import { addMistakes } from '../lib/mistakes'
 import { findRepertoireDeparture } from '../lib/repertoireMatch'
+import { coachGame } from '../lib/coach'
 import SpeakButton from '../components/SpeakButton'
 import EvalGraph from '../components/EvalGraph'
+import CoachReport from '../components/CoachReport'
 
 const SPEEDS = [
   { key: 'fast', label: 'Fast', movetime: 200 },
@@ -250,6 +252,21 @@ export default function GameReview() {
         : null,
     [selected, analysis],
   )
+  // Whole-game heuristic coaching (strengths, turning point, ideas to try) — once analysis is done.
+  const coachReport = useMemo(
+    () =>
+      selected && analysis === 'done'
+        ? coachGame({
+            positions: selected.positions,
+            moves: selected.moves,
+            scores,
+            bestMoves,
+            pvs,
+            userColor: selected.userColor,
+          })
+        : null,
+    [selected, analysis, scores, bestMoves, pvs],
+  )
 
   // Current view: board at positions[ply]; the move that led here is moveInfo[ply-1].
   const currentEval = scores[ply] || null
@@ -436,6 +453,8 @@ export default function GameReview() {
                 <Link to="/openings" className="btn-ghost full">Drill this opening →</Link>
               </div>
             )}
+
+            <CoachReport report={coachReport} />
 
             <div className="coach">
               {!lastMove && <p className="muted">Step through the game, or jump to your mistakes.</p>}
