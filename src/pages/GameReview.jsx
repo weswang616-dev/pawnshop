@@ -12,11 +12,14 @@ import {
   MOVE_QUALITY,
   formatEval,
   uciToMove,
+  gameAccuracy,
 } from '../lib/analysis'
 import { classifyBlunder, recordGameThemes } from '../lib/weakness'
 import { describeBestMove } from '../lib/explain'
 import { addMistakes } from '../lib/mistakes'
+import { findRepertoireDeparture } from '../lib/repertoireMatch'
 import SpeakButton from '../components/SpeakButton'
+import EvalGraph from '../components/EvalGraph'
 
 const SPEEDS = [
   { key: 'fast', label: 'Fast', movetime: 200 },
@@ -235,6 +238,19 @@ export default function GameReview() {
     return c
   }, [moveInfo, selected])
 
+  // Your chess.com-style accuracy for this game, and where (if anywhere) you left your repertoire.
+  const accuracy = useMemo(
+    () => (selected ? gameAccuracy(scores, selected.moves, selected.userColor) : null),
+    [selected, scores],
+  )
+  const departure = useMemo(
+    () =>
+      selected && analysis === 'done'
+        ? findRepertoireDeparture(selected.positions, selected.moves, selected.userColor)
+        : null,
+    [selected, analysis],
+  )
+
   // Current view: board at positions[ply]; the move that led here is moveInfo[ply-1].
   const currentEval = scores[ply] || null
   const lastMove = ply > 0 ? moveInfo[ply - 1] : null
@@ -369,6 +385,8 @@ export default function GameReview() {
                 </label>
               </div>
 
+              <EvalGraph scores={scores} ply={ply} onSeek={setPly} userColor={selected.userColor} />
+
               {analysis === 'running' && (
                 <div className="progress">
                   <div className="progress-bar" style={{ width: `${Math.round(progress * 100)}%` }} />
@@ -400,6 +418,7 @@ export default function GameReview() {
             </div>
 
             <div className="summary">
+              <Stat n={accuracy != null ? `${accuracy}%` : '—'} label="Accuracy" cls="accuracy" />
               <Stat n={counts.blunder} label="Blunders" cls="blunder" />
               <Stat n={counts.mistake} label="Mistakes" cls="mistake" />
               <Stat n={counts.inaccuracy} label="Inaccuracies" cls="inaccuracy" />
@@ -407,6 +426,16 @@ export default function GameReview() {
             <button className="btn-primary full" onClick={jumpToNextMistake} disabled={!myMistakes.length}>
               {myMistakes.length ? 'Jump to my next mistake →' : 'No big mistakes found 🎉'}
             </button>
+            {departure && (
+              <div className="rep-departure">
+                <span className="weakness-eyebrow">📖 Repertoire check</span>
+                <p>
+                  You left your prep at move <b>{departure.moveNo}</b>: you played <b>{departure.playedSan}</b>, but
+                  your <b>{departure.repName}</b> line is <b>{departure.bookSans.join(' / ')}</b>.
+                </p>
+                <Link to="/openings" className="btn-ghost full">Drill this opening →</Link>
+              </div>
+            )}
 
             <div className="coach">
               {!lastMove && <p className="muted">Step through the game, or jump to your mistakes.</p>}

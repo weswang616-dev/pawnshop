@@ -54,3 +54,30 @@ export function uciToMove(uci) {
   if (!uci || uci.length < 4) return null
   return { from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4) || undefined }
 }
+
+// White's chance-of-winning as a 0..100 percentage (Lichess' logistic on centipawns).
+export function winPercent({ cp, mate }) {
+  if (mate != null) return mate > 0 ? 100 : 0
+  const c = Math.max(-1500, Math.min(1500, cp ?? 0))
+  return 50 + 50 * (2 / (1 + Math.exp(-0.00368208 * c)) - 1)
+}
+
+// A chess.com / Lichess-style game accuracy (0–100) for ONE player, from per-position evals.
+// scores[i] is the eval BEFORE move i; moves[i].color says who moved. We score only the
+// requested side's moves: each move's "win% lost" maps to a per-move accuracy, then we average.
+export function gameAccuracy(scores, moves, userColor) {
+  const accs = []
+  for (let i = 0; i < moves.length; i++) {
+    if (moves[i].color !== userColor) continue
+    const before = scores[i]
+    const after = scores[i + 1]
+    if (!before || !after) continue
+    const wpBefore = userColor === 'w' ? winPercent(before) : 100 - winPercent(before)
+    const wpAfter = userColor === 'w' ? winPercent(after) : 100 - winPercent(after)
+    const drop = Math.max(0, wpBefore - wpAfter)
+    const acc = 103.1668 * Math.exp(-0.04354 * drop) - 3.1669
+    accs.push(Math.max(0, Math.min(100, acc)))
+  }
+  if (!accs.length) return null
+  return Math.round(accs.reduce((s, x) => s + x, 0) / accs.length)
+}
