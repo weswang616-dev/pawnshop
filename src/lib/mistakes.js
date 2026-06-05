@@ -56,6 +56,11 @@ export function getQueue(now = new Date()) {
   return [...due, ...fresh]
 }
 
+// All stored mistake positions (no FSRS scheduling) — for the blunder-check drill.
+export function getAll() {
+  return Object.values(load()).map((e) => e.meta)
+}
+
 export function grade(id, rating, now = new Date()) {
   const store = load()
   const entry = store[id]

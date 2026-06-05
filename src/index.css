@@ -310,6 +310,9 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
 .cycle-history li { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 6px 10px; background: var(--panel-2); border-radius: 7px; font-size: 0.85rem; }
 .cycle-history li.best { border: 1px solid var(--accent); }
 .mono { font-variant-numeric: tabular-nums; font-weight: 700; }
+.seg.big.tabs { flex-wrap: wrap; gap: 6px; border: 0; overflow: visible; }
+.seg.big.tabs button { border: 1px solid var(--border); border-radius: 9px; }
+.seg.big.tabs button.on { border-color: var(--accent); }
 
 /* ---------- repertoire picker + SRS ---------- */
 .rep-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 6px; }

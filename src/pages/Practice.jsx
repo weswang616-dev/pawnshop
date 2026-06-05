@@ -4,8 +4,9 @@ import MistakesTrainer from '../components/MistakesTrainer'
 import EndgameTrainer from '../components/EndgameTrainer'
 import GuessTheMove from '../components/GuessTheMove'
 import Woodpecker from '../components/Woodpecker'
+import BlunderCheck from '../components/BlunderCheck'
 
-const TABS = ['mistakes', 'guess', 'woodpecker', 'play', 'endgames']
+const TABS = ['mistakes', 'blunder', 'woodpecker', 'guess', 'play', 'endgames']
 
 export default function Practice() {
   const [params, setParams] = useSearchParams()
@@ -17,11 +18,12 @@ export default function Practice() {
       <div className="page-head">
         <h1>Practice</h1>
         <p className="muted">
-          Drill the blunders from your own games, burn in patterns with the Woodpecker method, guess the moves of
-          chess legends, play full games, and master the endgames you must know.
+          Drill your own blunders, train your safety radar, burn in patterns with the Woodpecker method, guess the
+          moves of legends, play full games, and master must-know endgames.
         </p>
-        <div className="seg big">
+        <div className="seg big tabs">
           <button className={tab === 'mistakes' ? 'on' : ''} onClick={() => setTab('mistakes')}>🩹 My Mistakes</button>
+          <button className={tab === 'blunder' ? 'on' : ''} onClick={() => setTab('blunder')}>🛡️ Is it safe?</button>
           <button className={tab === 'woodpecker' ? 'on' : ''} onClick={() => setTab('woodpecker')}>🪵 Woodpecker</button>
           <button className={tab === 'guess' ? 'on' : ''} onClick={() => setTab('guess')}>🎯 Guess the Move</button>
           <button className={tab === 'play' ? 'on' : ''} onClick={() => setTab('play')}>🆚 Play</button>
@@ -29,6 +31,7 @@ export default function Practice() {
         </div>
       </div>
       {tab === 'mistakes' && <MistakesTrainer />}
+      {tab === 'blunder' && <BlunderCheck />}
       {tab === 'woodpecker' && <Woodpecker />}
       {tab === 'guess' && <GuessTheMove />}
       {tab === 'play' && <PlayEngine />}
