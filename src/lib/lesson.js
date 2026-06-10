@@ -8,8 +8,14 @@
 //   drill  — interactive checkpoint: the board rewinds to `startStep` and YOU must replay
 //            your moves up to `endStep` from memory (the player answers for the other side).
 //            Inserted after every couple of your moves, plus a full-line final test.
+//            Variant `drillKind:'fix'` (from the "Your games" chapter): a standalone
+//            position (`fen`) with one correct move (`acceptSans`) and no opponent replies.
 //   note   — talking-head chapter on a fixed position: the plan after the opening,
 //            the middlegame strategy, and the wrap-up.
+//
+// Pass `gameMoments` (from src/lib/gameMoments.js) to insert a "📺 Your games" chapter —
+// positions from the user's own recent chess.com games where they left this opening's book,
+// each followed by a fix-it drill. Omitted when there's nothing to show.
 //
 // Every segment carries `caption` (shown as a subtitle) and `speech` (read aloud — SAN is
 // converted to spoken English by speak()).
@@ -31,7 +37,7 @@ function firstSentences(text, n = 2) {
 // Drop a drill checkpoint after this many of YOUR moves.
 const MOVES_PER_DRILL = 2
 
-export function buildLesson(rep, variation) {
+export function buildLesson(rep, variation, gameMoments = null) {
   const line = variation.line
   const userColor = rep.color === 'white' ? 'w' : 'b'
   const you = rep.color === 'white' ? 'White' : 'Black'
@@ -119,6 +125,43 @@ export function buildLesson(rep, variation) {
     speech: `Zooming out, the whole opening follows one strategy. ${rep.middlegame}`,
   })
 
+  // "📺 Your games" — where YOU left book recently, each with a one-move fix-it drill.
+  // `gamesAt` marks the insertion point so the player can remap a mid-lesson index when
+  // the (async-loaded) moments arrive and the tail segments shift.
+  const gamesAt = segments.length
+  if (gameMoments && gameMoments.length) {
+    gameMoments.forEach((m, gi) => {
+      segments.push({
+        type: 'note',
+        chapter: gi === 0 ? '📺 Your games' : undefined,
+        fen: m.fen,
+        arrows: [
+          { startSquare: m.playedFrom, endSquare: m.playedTo, color: '#d9534f' },
+          ...(m.bookFrom ? [{ startSquare: m.bookFrom, endSquare: m.bookTo, color: '#7cb342' }] : []),
+        ],
+        caption:
+          `${m.dateStr} vs ${m.opponent} (you ${m.resultWord}) — move ${m.moveNo}: ` +
+          `you played ${m.playedSan} (red), but your repertoire plays ${m.bookSan} (green).`,
+        speech:
+          (gi === 0
+            ? `Now for the part no video can give you — your own games. `
+            : `Here's another one. `) +
+          `On ${m.dateStr}, against ${m.opponent} — a game you ${m.resultWord} — you reached this position. ` +
+          `On move ${m.moveNo} you played ${m.playedSan}, but your repertoire plays ${m.bookSan}. ${m.idea}`,
+      })
+      segments.push({
+        type: 'drill',
+        drillKind: 'fix',
+        fen: m.fen,
+        expectedSan: m.bookSan,
+        acceptSans: m.bookSans,
+        idea: m.idea,
+        caption: `Fix it — play the move your repertoire wanted against ${m.opponent}.`,
+        speech: `Your turn — fix it. Play the book move here.`,
+      })
+    })
+  }
+
   // Capstone: play the entire line from move one.
   segments.push({
     type: 'drill',
@@ -141,5 +184,5 @@ export function buildLesson(rep, variation) {
       ` Next, pick another variation, or open Memorize mode so spaced repetition locks this in. See you in the next lesson.`,
   })
 
-  return { segments, positions, line, userColor }
+  return { segments, positions, line, userColor, gamesAt }
 }

@@ -4,7 +4,7 @@ import { Chess } from 'chess.js'
 import Board from '../components/Board'
 import EvalBar from '../components/EvalBar'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import { getRecentGames } from '../lib/chesscom'
+import { getRecentGames, parseGame, gameOutcome } from '../lib/chesscom'
 import { getEngine } from '../lib/engine'
 import {
   centipawnLoss,
@@ -31,22 +31,6 @@ const SPEEDS = [
   { key: 'deep', label: 'Deep', movetime: 600 },
 ]
 
-// Build the list of positions (FENs) and moves from a chess.com PGN.
-function parseGame(pgn) {
-  const parser = new Chess()
-  parser.loadPgn(pgn)
-  const verbose = parser.history({ verbose: true })
-  const replay = new Chess()
-  const positions = [replay.fen()]
-  const moves = []
-  for (const mv of verbose) {
-    replay.move(mv.san)
-    positions.push(replay.fen())
-    moves.push({ san: mv.san, color: mv.color, from: mv.from, to: mv.to })
-  }
-  return { positions, moves }
-}
-
 function sanFor(fen, uci) {
   if (!uci) return null
   try {
@@ -56,16 +40,6 @@ function sanFor(fen, uci) {
   } catch {
     return null
   }
-}
-
-function outcomeText(game, userColor) {
-  const me = userColor === 'w' ? game.white : game.black
-  const opp = userColor === 'w' ? game.black : game.white
-  const r = me.result
-  const win = r === 'win'
-  const draw = ['agreed', 'repetition', 'stalemate', 'insufficient', '50move', 'timevsinsufficient'].includes(r)
-  const label = win ? 'Won' : draw ? 'Drew' : 'Lost'
-  return { label, win, draw, opp: opp.username, oppRating: opp.rating, reason: r }
 }
 
 export default function GameReview() {
@@ -362,7 +336,7 @@ export default function GameReview() {
           <ul>
             {games.map((g) => {
               const userColor = (g.white.username || '').toLowerCase() === username.toLowerCase() ? 'w' : 'b'
-              const o = outcomeText(g, userColor)
+              const o = gameOutcome(g, userColor)
               const active = selected?.game?.url === g.url
               return (
                 <li key={g.url}>

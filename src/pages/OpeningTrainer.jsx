@@ -7,6 +7,7 @@ import VoicePicker from '../components/VoicePicker'
 import { speak, stopSpeaking } from '../lib/speak'
 import { repertoires, getRepertoire } from '../lib/repertoires'
 import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useGameMoments } from '../hooks/useGameMoments'
 import { getQueue, gradePosition, bookMovesFor, stats, Rating } from '../lib/srs'
 
 function positionsFor(line) {
@@ -35,6 +36,9 @@ export default function OpeningTrainer() {
   const [variationIdx, setVariationIdx] = useState(0)
   const rep = getRepertoire(repId)
   const variation = rep.variations[Math.min(variationIdx, rep.variations.length - 1)] || rep.variations[0]
+  // "Your games" moments live here (not inside the keyed LessonPlayer) so switching
+  // variations doesn't refetch — the lesson just remounts with the data already in hand.
+  const gameMoments = useGameMoments(rep, mode === 'lesson')
 
   function selectRep(id) {
     setRepId(id)
@@ -65,7 +69,7 @@ export default function OpeningTrainer() {
           <RepPicker value={repId} onSelect={selectRep} />
           <VariationPicker rep={rep} value={variationIdx} onSelect={setVariationIdx} />
           {mode === 'lesson' ? (
-            <LessonPlayer key={rep.id + variationIdx} rep={rep} variation={variation} />
+            <LessonPlayer key={rep.id + variationIdx} rep={rep} variation={variation} gameMoments={gameMoments} />
           ) : mode === 'learn' ? (
             <Learn key={rep.id + variationIdx} rep={rep} variation={variation} />
           ) : (

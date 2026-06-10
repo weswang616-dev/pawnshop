@@ -27,8 +27,8 @@ function sanToFromTo(fen, san) {
   }
 }
 
-export default function LessonPlayer({ rep, variation }) {
-  const lesson = useMemo(() => buildLesson(rep, variation), [rep, variation])
+export default function LessonPlayer({ rep, variation, gameMoments }) {
+  const lesson = useMemo(() => buildLesson(rep, variation, gameMoments), [rep, variation, gameMoments])
   const { segments: segs, line, userColor } = lesson
   const [idx, setIdx] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -50,6 +50,20 @@ export default function LessonPlayer({ rep, variation }) {
 
   const seg = segs[idx]
   const isDrill = seg?.type === 'drill'
+
+  // The "📺 Your games" moments load async and get INSERTED at `gamesAt`, shifting the tail
+  // (final test, wrap-up). Segments before `gamesAt` are deterministic for the same
+  // rep+variation (the component is remounted via its key when those change), so only an
+  // index in the tail needs to move with the insertion.
+  const prevLessonRef = useRef(lesson)
+  useEffect(() => {
+    const prev = prevLessonRef.current
+    prevLessonRef.current = lesson
+    const grown = lesson.segments.length - prev.segments.length
+    if (prev !== lesson && grown > 0) {
+      setIdx((i) => (i >= lesson.gamesAt ? i + grown : i))
+    }
+  }, [lesson])
 
   function bump() {
     tokenRef.current += 1
@@ -99,24 +113,35 @@ export default function LessonPlayer({ rep, variation }) {
       }
     })
     return bump
+    // Depend on the segment's CONTENT (speech), not its identity: a lesson rebuild when the
+    // game moments arrive re-creates equal segment objects and must not restart narration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, playing, rate, seg])
+  }, [idx, playing, rate, seg?.speech])
 
   // ---- Drill checkpoints: rewind the board, prompt, and wait for the user's moves ----
   useEffect(() => {
     if (!isDrill) return
-    const c = new Chess()
-    for (let i = 0; i < seg.startStep; i += 1) c.move(line[i].move)
-    chessRef.current = c
-    setDrillFen(c.fen())
-    setDrillStep(seg.startStep)
+    if (seg.drillKind === 'fix') {
+      // "Your games" fix-it drill: a standalone position, one correct move, no replies.
+      chessRef.current = new Chess(seg.fen)
+      setDrillFen(seg.fen)
+    } else {
+      const c = new Chess()
+      for (let i = 0; i < seg.startStep; i += 1) c.move(line[i].move)
+      chessRef.current = c
+      setDrillFen(c.fen())
+      setDrillStep(seg.startStep)
+    }
     setDrillDone(false)
     setHintArrow([])
     setDrillMsg({ type: 'info', text: seg.caption })
-    narrate(seg.speech, () => advanceOpponent(seg.startStep))
+    narrate(seg.speech, () => {
+      if (seg.drillKind === 'fix') setDrillMsg({ type: 'info', text: 'Your move — what does the book play here?' })
+      else advanceOpponent(seg.startStep)
+    })
     return bump
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, seg])
+  }, [idx, seg?.speech])
 
   // Auto-play the other side's moves until it's the user's turn (or the chunk is done).
   // The delay keeps the "✓ your move" feedback readable before the reply lands.
@@ -140,9 +165,9 @@ export default function LessonPlayer({ rep, variation }) {
     }, 900)
   }
 
-  function finishDrill() {
+  function finishDrill(text = '✓ Checkpoint passed!') {
     setDrillDone(true)
-    setDrillMsg({ type: 'success', text: '✓ Checkpoint passed!' })
+    setDrillMsg({ type: 'success', text })
     narrate('Nice work. Rolling on.', () => {
       setPlaying(true)
       setIdx((i) => Math.min(segs.length - 1, i + 1))
@@ -150,7 +175,27 @@ export default function LessonPlayer({ rep, variation }) {
   }
 
   function onDrop(from, to) {
-    if (!isDrill || drillDone || drillStep >= seg.endStep) return false
+    if (!isDrill || drillDone) return false
+    if (seg.drillKind === 'fix') {
+      let move
+      try {
+        move = chessRef.current.move({ from, to, promotion: 'q' })
+      } catch {
+        move = null
+      }
+      if (!move) return false
+      if (!seg.acceptSans.includes(move.san)) {
+        chessRef.current.undo()
+        setDrillMsg({ type: 'error', text: 'Not the book move — try again, or take a hint.' })
+        speak('Not quite. Try again.', null, { rate })
+        return false
+      }
+      setDrillFen(chessRef.current.fen())
+      setHintArrow([])
+      finishDrill(`✓ ${move.san} — ${seg.idea}`)
+      return true
+    }
+    if (drillStep >= seg.endStep) return false
     const expected = line[drillStep]
     if (!expected || expected.by !== userColor) return false
     const exp = sanToFromTo(chessRef.current.fen(), expected.move)
@@ -176,9 +221,9 @@ export default function LessonPlayer({ rep, variation }) {
   }
 
   function hint() {
-    const expected = line[drillStep]
-    if (!expected) return
-    const ft = sanToFromTo(chessRef.current.fen(), expected.move)
+    const expectedSan = seg?.drillKind === 'fix' ? seg.expectedSan : line[drillStep]?.move
+    if (!expectedSan) return
+    const ft = sanToFromTo(chessRef.current.fen(), expectedSan)
     if (ft) setHintArrow([{ startSquare: ft.from, endSquare: ft.to, color: '#e8974f' }])
   }
 

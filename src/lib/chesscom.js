@@ -2,6 +2,8 @@
 // Public, read-only, no API key, and CORS-enabled (Access-Control-Allow-Origin: *),
 // so we can call it straight from the browser.
 
+import { Chess } from 'chess.js'
+
 const BASE = 'https://api.chess.com/pub'
 
 async function getJson(url) {
@@ -45,4 +47,31 @@ export function summariseStats(stats) {
     bullet: pick('chess_bullet'),
     daily: pick('chess_daily'),
   }
+}
+
+// Build the list of positions (FENs) and moves from a chess.com PGN.
+export function parseGame(pgn) {
+  const parser = new Chess()
+  parser.loadPgn(pgn)
+  const verbose = parser.history({ verbose: true })
+  const replay = new Chess()
+  const positions = [replay.fen()]
+  const moves = []
+  for (const mv of verbose) {
+    replay.move(mv.san)
+    positions.push(replay.fen())
+    moves.push({ san: mv.san, color: mv.color, from: mv.from, to: mv.to })
+  }
+  return { positions, moves }
+}
+
+// Win / draw / loss from the user's side of a chess.com game object.
+export function gameOutcome(game, userColor) {
+  const me = userColor === 'w' ? game.white : game.black
+  const opp = userColor === 'w' ? game.black : game.white
+  const r = me.result
+  const win = r === 'win'
+  const draw = ['agreed', 'repetition', 'stalemate', 'insufficient', '50move', 'timevsinsufficient'].includes(r)
+  const label = win ? 'Won' : draw ? 'Drew' : 'Lost'
+  return { label, win, draw, opp: opp.username, oppRating: opp.rating, reason: r }
 }
