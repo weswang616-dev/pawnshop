@@ -202,7 +202,7 @@ function stopKeepAlive() {
   }
 }
 
-export function speak(text, onEnd) {
+export function speak(text, onEnd, opts = {}) {
   if (!speechSupported || !text) return false
   const synth = window.speechSynthesis
   synth.cancel()
@@ -212,7 +212,9 @@ export function speak(text, onEnd) {
     u.voice = voice
     u.lang = voice.lang
   }
-  u.rate = 0.95 // a touch slower so moves are easy to follow
+  // Base rate is a touch slower so moves are easy to follow; opts.rate is a user-facing
+  // playback-speed multiplier (e.g. the lesson player's 0.8× / 1× / 1.25×).
+  u.rate = Math.min(2, Math.max(0.5, 0.95 * (opts.rate || 1)))
   u.pitch = 1
   u.volume = 1
   u.onend = () => {

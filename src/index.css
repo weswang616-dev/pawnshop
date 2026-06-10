@@ -433,3 +433,55 @@ input:focus, select:focus { outline: 2px solid var(--accent-2); outline-offset: 
   .profile-card { flex-direction: column; text-align: center; }
   .rating-row { justify-content: center; }
 }
+
+/* ---- Lesson player (video-style guided lesson with drill checkpoints) ---- */
+.lesson-stage { position: relative; width: 100%; max-width: 440px; }
+.lesson-overlay {
+  position: absolute; inset: 0; margin: auto; width: 86px; height: 86px;
+  border-radius: 50%; border: 0; background: rgba(12, 18, 7, 0.78); color: var(--accent);
+  font-size: 2.1rem; line-height: 1; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; padding-left: 6px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s, background 0.15s; z-index: 5;
+}
+.lesson-overlay:hover { transform: scale(1.08); background: rgba(12, 18, 7, 0.92); }
+.lesson-live {
+  position: absolute; top: 8px; left: 8px; z-index: 5; background: rgba(224, 82, 75, 0.92);
+  color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+  padding: 3px 8px; border-radius: 6px; animation: lesson-pulse 1.6s ease-in-out infinite;
+}
+@keyframes lesson-pulse { 50% { opacity: 0.55; } }
+.lesson-caption {
+  width: 100%; max-width: 440px; min-height: 74px; margin-top: 10px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px;
+}
+.lesson-caption p { color: var(--text); font-size: 0.92rem; margin: 0; }
+.lesson-caption .move-badge { margin-bottom: 6px; }
+.lesson-caption.success { border-color: var(--accent); background: rgba(124, 179, 66, 0.1); }
+.lesson-caption.error { border-color: var(--danger); background: rgba(224, 82, 75, 0.1); }
+.lesson-controls {
+  display: flex; align-items: center; gap: 8px; margin-top: 10px;
+  width: 100%; max-width: 440px;
+}
+.lesson-play { background: var(--accent); border-color: var(--accent); color: #0c1207; font-weight: 700; min-width: 44px; }
+.lesson-timeline { display: flex; flex: 1; gap: 2px; height: 14px; align-items: stretch; }
+.lesson-tick {
+  flex: 1; min-width: 3px; border: 0; border-radius: 2px; padding: 0;
+  background: var(--panel-2); cursor: pointer;
+}
+.lesson-tick.done { background: var(--accent); }
+.lesson-tick.drill { background: rgba(232, 151, 79, 0.45); }
+.lesson-tick.drill.done { background: #e8974f; }
+.lesson-tick.current { outline: 2px solid #fff; outline-offset: 1px; }
+.lesson-speed { width: auto; padding: 6px 8px; font-size: 0.82rem; }
+.lesson-chapters {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.lesson-chapters strong { color: #fff; margin-bottom: 2px; }
+.lesson-chapter {
+  text-align: left; background: transparent; border: 1px solid transparent;
+  border-radius: 8px; padding: 6px 10px; font-size: 0.88rem; color: var(--muted);
+}
+.lesson-chapter:hover { background: var(--panel-2); color: var(--text); }
+.lesson-chapter.on { border-color: var(--accent); color: var(--text); background: rgba(124, 179, 66, 0.1); }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess } from 'chess.js'
 import Board from '../components/Board'
+import LessonPlayer from '../components/LessonPlayer'
 import SpeakButton from '../components/SpeakButton'
 import VoicePicker from '../components/VoicePicker'
 import { speak, stopSpeaking } from '../lib/speak'
@@ -29,7 +30,7 @@ function sanToFromTo(fen, san) {
 }
 
 export default function OpeningTrainer() {
-  const [mode, setMode] = useState('learn')
+  const [mode, setMode] = useState('lesson')
   const [repId, setRepId] = useLocalStorage('rep-selected', repertoires[0].id)
   const [variationIdx, setVariationIdx] = useState(0)
   const rep = getRepertoire(repId)
@@ -45,9 +46,11 @@ export default function OpeningTrainer() {
       <div className="page-head">
         <h1>Repertoire Trainer</h1>
         <p className="muted">
-          Learn an opening, drill every variation, then lock it into long-term memory with spaced repetition.
+          Watch a narrated video lesson with built-in drills, study at your own pace, then lock it into long-term
+          memory with spaced repetition.
         </p>
         <div className="seg big">
+          <button className={mode === 'lesson' ? 'on' : ''} onClick={() => setMode('lesson')}>🎬 Lesson</button>
           <button className={mode === 'learn' ? 'on' : ''} onClick={() => setMode('learn')}>📖 Learn</button>
           <button className={mode === 'drill' ? 'on' : ''} onClick={() => setMode('drill')}>🎯 Drill</button>
           <button className={mode === 'memorize' ? 'on' : ''} onClick={() => setMode('memorize')}>🧠 Memorize</button>
@@ -61,7 +64,9 @@ export default function OpeningTrainer() {
           <CoachPick />
           <RepPicker value={repId} onSelect={selectRep} />
           <VariationPicker rep={rep} value={variationIdx} onSelect={setVariationIdx} />
-          {mode === 'learn' ? (
+          {mode === 'lesson' ? (
+            <LessonPlayer key={rep.id + variationIdx} rep={rep} variation={variation} />
+          ) : mode === 'learn' ? (
             <Learn key={rep.id + variationIdx} rep={rep} variation={variation} />
           ) : (
             <Drill key={rep.id + variationIdx} rep={rep} variation={variation} />
